@@ -1,0 +1,43 @@
+{
+  "name": "vfe",
+  "version": "1.0.0",
+  "description": "vfe build cli, base on webpack & gulp.",
+  "main": "index.js",
+  "bin": {
+    "vfe": "bin/vfe"
+  },
+  "scripts": {
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/switer/vfe.git"
+  },
+  "keywords": [
+    "VFE",
+    "build",
+    "tool"
+  ],
+  "author": "switer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/switer/vfe/issues"
+  },
+  "homepage": "https://github.com/switer/vfe#readme",
+  "dependencies": {
+    "css-loader": "^0.15.5",
+    "extract-text-webpack-plugin": "^0.8.2",
+    "file-loader": "^0.8.4",
+    "gulp-clean": "^0.3.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-hash": "^2.0.4",
+    "gulp-uglifyjs": "^0.6.2",
+    "gulp-webpack": "^1.5.0",
+    "html-loader": "^0.3.0",
+    "node-libs-browser": "^0.5.2",
+    "webpack": "^1.10.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0"
+  }
+}
