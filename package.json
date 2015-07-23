@@ -7,7 +7,7 @@
     "vfe": "bin/vfe"
   },
   "scripts": {
-    "test": "node test"
+    "test": "cd test/ & gulp"
   },
   "repository": {
     "type": "git",
@@ -28,16 +28,20 @@
     "css-loader": "^0.15.5",
     "extract-text-webpack-plugin": "^0.8.2",
     "file-loader": "^0.8.4",
+    "gulp": "^3.9.0",
     "gulp-clean": "^0.3.1",
     "gulp-concat": "^2.6.0",
+    "gulp-cssmin": "^0.1.7",
+    "gulp-filter": "^2.0.2",
     "gulp-hash": "^2.0.4",
+    "gulp-rename": "^1.2.2",
+    "gulp-save": "^1.2.1",
     "gulp-uglifyjs": "^0.6.2",
+    "gulp-util": "^3.0.6",
     "gulp-webpack": "^1.5.0",
     "html-loader": "^0.3.0",
-    "node-libs-browser": "^0.5.2",
-    "webpack": "^1.10.1"
-  },
-  "devDependencies": {
-    "gulp": "^3.9.0"
+    "merge2": "^0.3.6",
+    "through2": "^2.0.0",
+    "webpack": "^1.10.3"
   }
 }
