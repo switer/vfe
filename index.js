@@ -29,6 +29,11 @@ function componentsBuild(options) {
             f.request = cname + '/' + cname
             return f
         }),
+        new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
+            var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
+            f.request = cname + '/' + cname
+            return f
+        }),
         new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\]/, function(f) {
             f.request = '.' +  f.request
             return f

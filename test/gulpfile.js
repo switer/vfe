@@ -3,15 +3,15 @@
 var gulp = require('gulp')
 var builder = require('../index')
 
-gulp.task('default', function () {
-	var dist = './dist'
+var dist = './dist'
 
-	return builder.merge(
-			gulp.src(dist).pipe(builder.clean()),
-			builder({
-				entry: './index.js',
-				libs: './lib/*.js'
-			})
-		)
+gulp.task('clean', function () {
+	return gulp.src(dist, {read: false}).pipe(builder.clean())
+})
+gulp.task('default', ['clean'], function () {
+	return builder({
+			entry: './index.js',
+			libs: './lib/*.js'
+		})
 		.pipe(gulp.dest(dist))
 })

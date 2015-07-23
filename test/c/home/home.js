@@ -1,6 +1,7 @@
 'use strict';
 
-require('/c/header')
+require('header')
+require('list')
 
 module.exports = new Reve({
 	el: '.home',
