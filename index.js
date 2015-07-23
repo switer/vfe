@@ -22,6 +22,39 @@ function componentsBuild(options) {
     var HASH_LENGTH = options.hashLength
     var entry = options.entry || './index.js'
 
+    var plugins = [
+        // new ComponentPlugin(),
+        new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\][^\/\\]+$/, function(f) {
+            var cname = f.request.match(/[\/\\]c[\/\\]([\w\-\$]+)$/)[1]
+            f.request = cname + '/' + cname
+            return f
+        }),
+        new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\]/, function(f) {
+            f.request = '.' +  f.request
+            return f
+        }),
+        new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
+    ]
+
+    var loaders = [{
+        test: /.*?\.tpl$/,
+        loader: 'html-loader'
+    }, {
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract("css-loader")
+    }, {
+        test: /\.(png|jpg|gif|jpeg|webp)$/,
+        loader: "file-loader?name=[path][name]_[hash:" + HASH_LENGTH + "].[ext]"
+    }]
+
+    options.components = options.components || {}
+    if (options.plugins && options.plugins.length) {
+        plugins = plugins.concat(options.plugins)
+    }
+    if (options.module && options.module.loaders && options.module.loaders.length) {
+        loaders = loaders.concat(options.module.loaders)
+    }
+
     return gulpWebPack({
             entry: entry,
             output: {
@@ -32,33 +65,12 @@ function componentsBuild(options) {
                     test: /[\/\\]c[\/\\][^\/\\]+[\/\\][^\/\\]+\.js/,
                     loader: 'component'
                 }],
-                loaders:[{
-                    test: /.*?\.tpl$/,
-                    loader: 'html-loader'
-                }, {
-                    test: /\.css$/,
-                    loader: ExtractTextPlugin.extract("css-loader")
-                }, {
-                    test: /\.(png|jpg|gif|jpeg|webp)$/,
-                    loader: "file-loader?name=[path][name]_[hash:" + HASH_LENGTH + "].[ext]"
-                }]
+                loaders: loaders
             },
             resolveLoader: {
                 modulesDirectories: [path.join(__dirname, './loaders'), path.join(__dirname, './node_modules')]
             },
-            plugins: [
-                new ComponentPlugin(),
-                new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\][^\/\\]+$/, function(f) {
-                    var cname = f.request.match(/[\/\\]c[\/\\]([\w\-\$]+)$/)[1]
-                    f.request = cname + '/' + cname
-                    return f
-                }),
-                new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\]/, function(f) {
-                    f.request = '.' +  f.request
-                    return f
-                }),
-                new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
-            ],
+            plugins: plugins,
             resolve: {
                 modulesDirectories: ['c']
             }

@@ -49,7 +49,7 @@ Directory structure constraint:
 ```
 
 - **c/**
-	Components director, each sub-director is a component and independent css/js/tp/image. It can using `require(/c/componentDirName)` to load module, such as load header module: `require("/c/header")` will auto header.js and header.js
+	Components director, each sub-director is a component and independent css/js/tp/image. It can using `require(/c/componentDirName)` to load module, such as load header module: `require("/c/header")` will auto load header.css and header.js
 
 - **lib/**
 	Non-modularized js will concat with components' bundle file.
