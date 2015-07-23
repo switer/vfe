@@ -11,7 +11,56 @@ var gulpFilter = require('gulp-filter')
 var cssmin = require('gulp-cssmin')
 var rename = require('gulp-rename')
 var save = require('./tasks/save')
+var webpack = require('webpack')
+var path = require('path')
+var gulpWebPack = require('gulp-webpack')
+var ExtractTextPlugin = require("extract-text-webpack-plugin")
+var ComponentPlugin = require('./plugins/component')
 var HASH_LENGTH = 6
+
+function componentsBuild(options) {
+    var HASH_LENGTH = options.hashLength
+    var entry = options.entry || './index.js'
+
+    return gulpWebPack({
+            entry: entry,
+            output: {
+                filename: 'components.js'
+            },
+            module: {
+                preLoaders: [{
+                    test: /[\/\\]c[\/\\][^\/\\]+[\/\\][^\/\\]+\.js/,
+                    loader: 'component'
+                }],
+                loaders:[{
+                    test: /.*?\.tpl$/,
+                    loader: 'html-loader'
+                }, {
+                    test: /\.css$/,
+                    loader: ExtractTextPlugin.extract("css-loader")
+                }, {
+                    test: /\.(png|jpg|gif|jpeg|webp)$/,
+                    loader: "file-loader?name=[path][name]_[hash:" + HASH_LENGTH + "].[ext]"
+                }]
+            },
+            resolveLoader: {
+                modulesDirectories: [path.join(__dirname, './loaders'), path.join(__dirname, './node_modules')]
+            },
+            plugins: [
+                new ComponentPlugin(),
+                new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\][^\/\\]+$/, function(f) {
+                    var cname = f.request.match(/[\/\\]c[\/\\]([\w\-\$]+)$/)[1]
+                    f.request = cname + '/' + cname
+                    return f
+                }),
+                new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
+            ],
+            resolve: {
+                modulesDirectories: ['c']
+            }
+        })
+}
+
 
 var builder = function(options) {
 
@@ -27,7 +76,7 @@ var builder = function(options) {
      * using webpack build component modules
      */
     streams.push(
-        require('./tasks/components-build')({
+        componentsBuild({
             hashLength: HASH_LENGTH,
             entry: entry
         })
