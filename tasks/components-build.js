@@ -33,7 +33,7 @@ module.exports = function componentsBuild(options) {
                 }]
             },
             resolveLoader: {
-                modulesDirectories: ['loaders', 'node_modules']
+                modulesDirectories: [path.join(__dirname, '../loaders'), path.join(__dirname, '../node_modules')]
             },
             plugins: [
                 new ComponentPlugin(),
@@ -42,7 +42,6 @@ module.exports = function componentsBuild(options) {
                     f.request = cname + '/' + cname
                     return f
                 }),
-                new webpack.BannerPlugin('Version 1.0.0'),
                 new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
             ],
             resolve: {
