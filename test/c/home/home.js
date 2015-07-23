@@ -1,6 +1,6 @@
 'use strict';
 
-require('header')
+require('/c/header/header.js')
 require('list')
 
 module.exports = new Reve({

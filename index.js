@@ -35,7 +35,7 @@ function componentsBuild(options) {
             return f
         }),
         new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\]/, function(f) {
-            f.request = '.' +  f.request
+            f.request = f.request.replace(/^[\/\\]c[\/\\]/, '')
             return f
         }),
         new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
