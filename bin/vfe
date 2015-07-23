@@ -1,6 +1,2 @@
 #!/usr/bin/env node
 'use strict';
-
-var childProcess = require('child_process')
-
-childProcess.exec('gulp')
