@@ -53,6 +53,10 @@ function componentsBuild(options) {
                     f.request = cname + '/' + cname
                     return f
                 }),
+                new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\]/, function(f) {
+                    f.request = '.' +  f.request
+                    return f
+                }),
                 new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
             ],
             resolve: {
