@@ -16,48 +16,51 @@ var path = require('path')
 var gulpWebPack = require('gulp-webpack')
 var ExtractTextPlugin = require("extract-text-webpack-plugin")
 var ComponentPlugin = require('./plugins/component')
+var _ = require('underscore')
 var HASH_LENGTH = 6
 
 function componentsBuild(options) {
-    var HASH_LENGTH = options.hashLength
     var entry = options.entry || './index.js'
 
     var plugins = [
-        // new ComponentPlugin(),
-        new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\][^\/\\]+$/, function(f) {
-            var cname = f.request.match(/[\/\\]c[\/\\]([\w\-\$]+)$/)[1]
-            f.request = cname + '/' + cname
-            return f
-        }),
-        new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
-            var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
-            f.request = cname + '/' + cname
-            return f
-        }),
-        new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\]/, function(f) {
-            f.request = f.request.replace(/^[\/\\]c[\/\\]/, '')
-            return f
-        }),
-        new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
-    ]
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\][^\/\\]+$/, function(f) {
+                var cname = f.request.match(/[\/\\]c[\/\\]([\w\-\$]+)$/)[1]
+                f.request = cname + '/' + cname
+                return f
+            }),
+            new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
+                var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
+                f.request = cname + '/' + cname
+                return f
+            }),
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\]/, function(f) {
+                f.request = f.request.replace(/^[\/\\]c[\/\\]/, '')
+                return f
+            }),
+            new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
+        ]
 
     var loaders = [{
-        test: /.*?\.tpl$/,
-        loader: 'html-loader'
-    }, {
-        test: /\.css$/,
-        loader: ExtractTextPlugin.extract("css-loader")
-    }, {
-        test: /\.(png|jpg|gif|jpeg|webp)$/,
-        loader: "file-loader?name=[path][name]_[hash:" + HASH_LENGTH + "].[ext]"
-    }]
+            test: /.*?\.tpl$/,
+            loader: 'html-loader'
+        }, {
+            test: /\.css$/,
+            loader: ExtractTextPlugin.extract("css-loader")
+        }, {
+            test: /\.(png|jpg|gif|jpeg|webp)$/,
+            loader: "file-loader?name=[path][name]_[hash:" + HASH_LENGTH + "].[ext]"
+        }]
 
-    options.components = options.components || {}
-    if (options.plugins && options.plugins.length) {
+    var loaderDirectories = [path.join(__dirname, './loaders'), path.join(__dirname, './node_modules')]
+
+    if (options.plugins) {
         plugins = plugins.concat(options.plugins)
     }
-    if (options.module && options.module.loaders && options.module.loaders.length) {
-        loaders = loaders.concat(options.module.loaders)
+    if (options.loaders) {
+        loaders = loaders.concat(options.loaders)
+    }
+    if (options.loaderDirectories) {
+        loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
 
     return gulpWebPack({
@@ -73,7 +76,7 @@ function componentsBuild(options) {
                 loaders: loaders
             },
             resolveLoader: {
-                modulesDirectories: [path.join(__dirname, './loaders'), path.join(__dirname, './node_modules')]
+                modulesDirectories: loaderDirectories
             },
             plugins: plugins,
             resolve: {
@@ -85,7 +88,8 @@ function componentsBuild(options) {
 
 var builder = function(options) {
 
-    var onlyCss
+    options = options || {}
+
     var cssFilter = gulpFilter(['*.js', '!*.css'])
     var jsFilter = gulpFilter(['**/*', '!*.js'])
 
@@ -97,10 +101,15 @@ var builder = function(options) {
      * using webpack build component modules
      */
     streams.push(
-        componentsBuild({
-            hashLength: HASH_LENGTH,
-            entry: entry
-        })
+        componentsBuild(_.extend(
+            {
+                entry: entry
+            }, {
+                loaders: options.loaders,
+                plugins: options.plugins,
+                loaderDirectories: options.loaderDirectories
+            })
+        )
         .pipe(jsFilter)
         .pipe(save('components:css,images'))
         .pipe(gulpFilter(['*.css']))
@@ -147,5 +156,6 @@ builder.cssmin = cssmin
 builder.rename = rename
 builder.merge = merge2
 builder.hash = hash
+builder.filter = gulpFilter
 
 module.exports = builder

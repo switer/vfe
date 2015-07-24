@@ -11,7 +11,12 @@ gulp.task('clean', function () {
 gulp.task('default', ['clean'], function () {
 	return builder({
 			entry: './index.js',
-			libs: './lib/*.js'
+			libs: './lib/*.js',
+			loaders: [{
+				test: /.*\.json$/,
+				loader: 'json-loader'
+			}],
+			loaderDirectories: ['webpack-loaders']
 		})
 		.pipe(gulp.dest(dist))
 })
