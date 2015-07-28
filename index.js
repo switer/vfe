@@ -23,20 +23,32 @@ function componentsBuild(options) {
     var entry = options.entry || './index.js'
 
     var plugins = [
+            // *(dir/component)
+            new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
+            	var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
+                var cdir = matches[1]
+                var cname = matches[2]
+                f.request = cdir + '/' + cname + '/' + cname
+                return f
+            }),
+            // /c/component
             new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\][^\/\\]+$/, function(f) {
                 var cname = f.request.match(/[\/\\]c[\/\\]([\w\-\$]+)$/)[1]
                 f.request = cname + '/' + cname
                 return f
             }),
+            // *(component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
                 var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
                 f.request = cname + '/' + cname
                 return f
             }),
+            // /c/*
             new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\]/, function(f) {
                 f.request = f.request.replace(/^[\/\\]c[\/\\]/, '')
                 return f
             }),
+            // extract css bundle
             new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
         ]
 
@@ -70,6 +82,9 @@ function componentsBuild(options) {
             },
             module: {
                 preLoaders: [{
+                    test: /[\/\\]c[\/\\][^\/\\]+[\/\\][^\/\\]+[\/\\][^\/\\]+\.js/,
+                    loader: 'component'
+                },{
                     test: /[\/\\]c[\/\\][^\/\\]+[\/\\][^\/\\]+\.js/,
                     loader: 'component'
                 }],
