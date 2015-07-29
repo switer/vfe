@@ -113,6 +113,12 @@ var builder = function(options) {
 
     var streams = []
 	/**
+     * concat component js bundle with lib js
+     */
+    streams.push(
+        gulp.src(libs)
+    )
+    /**
      * using webpack build component modules
      */
     streams.push(
@@ -137,12 +143,6 @@ var builder = function(options) {
         .pipe(cssFilter)
     )
 
-	/**
-     * concat component js bundle with lib js
-     */
-    streams.push(
-        gulp.src(libs)
-    )
 
     return merge2.apply(null, streams)
         .pipe(concat('bundle.js'))
