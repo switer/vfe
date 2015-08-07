@@ -21,7 +21,7 @@ var HASH_LENGTH = 6
 
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
-
+    var outputName = options.name
     var plugins = [
             // *(dir/component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
@@ -49,7 +49,7 @@ function componentsBuild(options) {
                 return f
             }),
             // extract css bundle
-            new ExtractTextPlugin('bundle_[hash:' + HASH_LENGTH +  '].css')
+            new ExtractTextPlugin(outputName + '_[hash:' + HASH_LENGTH +  '].css')
         ]
 
     var loaders = [{
@@ -104,7 +104,7 @@ function componentsBuild(options) {
 var builder = function(options) {
 
     options = options || {}
-
+    var outputName = options.name || 'bundle'
     var cssFilter = gulpFilter(['*.js', '!*.css'])
     var jsFilter = gulpFilter(['**/*', '!*.js'])
 
@@ -124,7 +124,8 @@ var builder = function(options) {
     streams.push(
         componentsBuild(_.extend(
             {
-                entry: entry
+                entry: entry,
+                name: outputName,
             }, {
                 loaders: options.loaders,
                 plugins: options.plugins,
@@ -145,13 +146,13 @@ var builder = function(options) {
 
 
     return merge2.apply(null, streams)
-        .pipe(concat('bundle.js'))
+        .pipe(concat(outputName + '.js'))
         .pipe(hash({
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
         }))
         .pipe(save('bundle:js'))
-        .pipe(uglify('bundle.min.js', {
+        .pipe(uglify(outputName + '.min.js', {
             mangle: true,
             compress: true
         }))

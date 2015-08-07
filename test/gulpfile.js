@@ -10,6 +10,7 @@ gulp.task('clean', function () {
 })
 gulp.task('default', ['clean'], function () {
 	return builder({
+			name: 'vfe-demo',
 			entry: './index.js',
 			libs: './lib/*.js',
 			loaders: [{
