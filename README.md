@@ -59,11 +59,11 @@ Directory structure constraint:
 
 ## Require Rules
 
-- **require("/c/$name/$resource.js")** component resources absolute path.
+- **require(`"/c/$name/$resource.js"`)** component resources absolute path.
 
-- **require("$name")** short name of `"/c/$name/$name.js"`
+- **require(`"$name"`)** short name of `"/c/$name/$name.js"`
 
-- **require("$dir/$name") short name of `"/c/$dir/$name/$name.js"`
+- **require(`"$dir/$name"`)** short name of `"/c/$dir/$name/$name.js"`
 
 
 ## License
