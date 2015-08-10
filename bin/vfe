@@ -1,2 +1,22 @@
 #!/usr/bin/env node
 'use strict';
+
+var commander = require('commander')
+var http = require('http')
+var fs = require('fs')
+var meta = require('./package')
+
+commander
+	.version(meta.version)
+
+
+commander
+	.command('init')
+	.description('init with init-template')
+	.action(function () {
+		var file = fs.createWriteStream('./tmp/template')
+		http.get('https://github.com/switer/vfe/archive/master.zip')
+			.pipe(file)
+	})
+
+commander.parse(process.argv)

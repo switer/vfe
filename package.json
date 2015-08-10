@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/switer/vfe#readme",
   "dependencies": {
+    "commander": "^2.8.1",
     "css-loader": "^0.15.5",
     "extract-text-webpack-plugin": "^0.8.2",
     "file-loader": "^0.8.4",
