@@ -146,7 +146,7 @@ var builder = function(options) {
 
 
     return merge2.apply(null, streams)
-        .pipe(concat(outputName + '.js'))
+        .pipe(concat(outputName + '.js', {newLine: ';'}))
         .pipe(hash({
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
