@@ -81,7 +81,7 @@ Project folders specification:
 
 	Loader html template file as a string module.
 
-[More usage](https://github.com/switer/vfe/blob/master/test/index.js)
+[See more usage](https://github.com/switer/vfe/blob/master/test/index.js)
 
 ## Custom modules director
 ```js
