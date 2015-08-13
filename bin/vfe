@@ -5,7 +5,9 @@ var commander = require('commander')
 var path = require('path')
 var mkdirp = require('mkdirp')
 var request = require('request')
+var unzip = require('unzip')
 var ProgressBar = require('progress')
+var ncp = require('ncp').ncp
 var meta = require('../package.json')
 var ENV = process.env
 var tmp_dir = require('path').join(ENV.APPDATA || ENV.HOME || __dirname, '.vfe')
@@ -31,18 +33,19 @@ commander
 				proxy: 'http://proxy.tencent.com:8080'
 			})
 			.on('response', function (res) {
-
 				var len = parseInt(res.headers['content-length'], 10)
-				var bar = new ProgressBar('  downloading [:bar] :percent :etas', {
-					complete: '=',
-					incomplete: ' ',
-					width: 20,
-					total: len
-				})
-				console.log('')
-				res.on('data', function (chunk) {
-			 		bar.tick(chunk.length);
-				})
+				if (len) {
+					var bar = new ProgressBar('  downloading [:bar] :percent :etas', {
+						complete: '=',
+						incomplete: ' ',
+						width: 20,
+						total: len
+					})
+					console.log('')
+					res.on('data', function (chunk) {
+				 		bar.tick(chunk.length);
+					})
+				}
 				res.on('end', function () {
 					console.log('')
 				})
@@ -50,9 +53,8 @@ commander
 			.on('error', function (err) {
 				console.error(err)
 			})
-			.pipe(require('unzip').Extract({ path: tmp_dir }))
+			.pipe(unzip.Extract({ path: tmp_dir }))
 			.on('close', function () {
-				var ncp = require('ncp').ncp
 				ncp.limit = 16
 				ncp(path.join(tmp_dir, 'vfe-init-template-master'), dest, function (err) {
 					if (err) {

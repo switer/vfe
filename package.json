@@ -1,6 +1,6 @@
 {
   "name": "vfe",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "vfe build cli, base on webpack & gulp.",
   "main": "index.js",
   "bin": {
@@ -42,8 +42,13 @@
     "gulp-webpack": "^1.5.0",
     "html-loader": "^0.3.0",
     "merge2": "^0.3.6",
+    "mkdirp": "^0.5.1",
+    "ncp": "^2.0.0",
+    "progress": "^1.1.8",
+    "request": "^2.60.0",
     "through2": "^2.0.0",
     "underscore": "^1.8.3",
+    "unzip": "^0.1.11",
     "webpack": "^1.10.3"
   }
 }
