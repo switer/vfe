@@ -52,7 +52,8 @@ Project folders specification:
 
 - **c/**
 	
-	Component modules director, using `require("$componentName")` to load module, such as load header module: `require("header")` will auto load header.css and header.js.
+	Component modules director, default is "/c". Using `require("$componentName")` to load module, 
+	such as load header module: `require("header")` will auto load header.css and header.js.
 	> **Note:** It can be replaced of custom_director using modulesDirectories option. [See](https://github.com/switer/vfe#custom-modules-director)
 
 - **lib/**
