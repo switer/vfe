@@ -49,11 +49,11 @@ function componentsBuild(options) {
                 f.request = cname + '/' + cname
                 return f
             }),
-            // /modules_directory/*
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\]/, function(f) {
-                f.request = f.request.replace(/^[\/\\]([^\/\\]+)[\/\\]/, function (m, dir) {
-                    f.context = path.join(root, './' + dir)
-                    return './'
+            // /*: absolute path
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+/, function(f) {
+                f.request = f.request.replace(/^[\/\\]([^\/\\]+)/, function (m, fname) {
+                    f.context = root
+                    return './' + fname
                 })
                 return f
             }),
@@ -73,7 +73,6 @@ function componentsBuild(options) {
         }]
 
     var loaderDirectories = [path.join(__dirname, './loaders'), path.join(__dirname, './node_modules')]
-    var modulesDirectories = options.modulesDirectories || ['c']
     if (options.plugins) {
         plugins = plugins.concat(options.plugins)
     }
@@ -104,7 +103,7 @@ function componentsBuild(options) {
             },
             plugins: plugins,
             resolve: {
-                modulesDirectories: modulesDirectories
+                modulesDirectories: options.modulesDirectories || ['c']
             }
         })
 }

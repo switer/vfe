@@ -80,6 +80,20 @@ Project folders specification:
 
 	Loader html template file as a string module.
 
+
+## Custom modules director
+```js
+builder({
+	entry: './index.js',
+	libs: './lib/*.js',
+	modulesDirectories: ['c', 'custom_modules']
+})
+```
+If you don't want use "/c" as component modules director, overwrite it:
+builder({
+	modulesDirectories: ['components'] // use "/components" as modules director
+})		
+
 ## Command line
 
 Install cli

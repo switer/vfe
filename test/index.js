@@ -1,10 +1,15 @@
 'use strict';
 
-require('pages/index')
-require('header') // resolve from "/c" directly
-require('/c/header') // resolve from "/c" directly, alias of "/c/header/header.js"
-require('/c/header.js') // resolve from "/c" directly
-require('/custom_modules/helper.js') // resolve from "/custom_modules" directly
-require('helper.js') // step1: resolve from "/c", step2: from "/custom_modules" ...
+require('pages/index')					// alias of "/$modules_directory/pages/index/index.js", resolve from "/c" directly, if not exist, then from "/custom_modules"
+require('/c/pages/detail')				// absolute path without extension, path to "/c/pages/detail.js", if not exist, path to "/c/pages/detail/index.js"
+require('header') 						// alias of "/$modules_directory/header/header.js", resolve from "/c" directly, if not exist, then from "/custom_modules"
+require('/c/header') 					// alias of "/c/header/header.js", resolve from "/c" directly, 
+require('/c/header.js') 				// absolute path
+require('helper.js') 					// resolve from "/c", if not exist, then resolve from "/custom_modules" ...
+require('/custom_modules/helper.js') 	// absolute path
+require('./global-module.js') 			// relative path
+require('./global-module')				// relative path without extension
+require('/global-module.js')			// absolute path
+require('/global-module')				// absolute path without extension
 
 module.exports = require('/c/home')
