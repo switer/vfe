@@ -31,9 +31,13 @@ Project folders specification:
  |___/c
  |   |
  |   |___/header
+ |       |
  |       |____header.css
+ |       |
  |       |____header.js
+ |       |
  |       |____header.tpl
+ |       |
  |       |___/images
  |           |____icon.png
  |   
