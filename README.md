@@ -24,24 +24,25 @@ gulp.task('default', function () {
 })
 ```
 
-Directory structure constraint:
+Project folders specification:
 
 ```
 ./
- |____c
+ |___/c
  |   |
- |   |____header
+ |   |___/header
  |       |____header.css
  |       |____header.js
  |       |____header.tpl
- |       |____images
- |           |____refresh-icon.png
+ |       |___/images
+ |           |____icon.png
+ |   
  |   
  |____gulpfile.js
  |
  |____index.js
  |
- |____lib
+ |___/lib
      |____*.js
 ```
 
