@@ -17,7 +17,8 @@ gulp.task('default', ['clean'], function () {
 				test: /.*\.json$/,
 				loader: 'json-loader'
 			}],
-			loaderDirectories: ['webpack-loaders']
+			loaderDirectories: ['webpack-loaders'],
+			modulesDirectories: ['c', 'custom_modules']
 		})
 		.pipe(gulp.dest(dist))
 })

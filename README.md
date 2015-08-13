@@ -76,7 +76,7 @@ Project folders specification:
 	
 	Short name of `"/c/$dir/$name/$name.js"`.
 
-- **require(`./$name.tpl`)**
+- **require(`"./$name.tpl"`)**
 
 	Loader html template file as a string module.
 

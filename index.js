@@ -19,6 +19,8 @@ var ComponentPlugin = require('./plugins/component')
 var _ = require('underscore')
 var HASH_LENGTH = 6
 
+var root = process.cwd()
+
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
     var outputName = options.name
@@ -31,21 +33,28 @@ function componentsBuild(options) {
                 f.request = cdir + '/' + cname + '/' + cname
                 return f
             }),
-            // /c/component
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\][^\/\\]+$/, function(f) {
-                var cname = f.request.match(/[\/\\]c[\/\\]([\w\-\$]+)$/)[1]
-                f.request = cname + '/' + cname
-                return f
-            }),
             // *(component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
                 var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
                 f.request = cname + '/' + cname
                 return f
             }),
-            // /c/*
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\]c[\/\\]/, function(f) {
-                f.request = f.request.replace(/^[\/\\]c[\/\\]/, '')
+            // /modules_directory/component:[^\.]
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
+                var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
+                var cdir = matches[1]
+                var cname = matches[2]
+
+                f.context = path.join(root, './' + cdir)
+                f.request = cname + '/' + cname
+                return f
+            }),
+            // /modules_directory/*
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\]/, function(f) {
+                f.request = f.request.replace(/^[\/\\]([^\/\\]+)[\/\\]/, function (m, dir) {
+                    f.context = path.join(root, './' + dir)
+                    return './'
+                })
                 return f
             }),
             // extract css bundle
@@ -64,7 +73,7 @@ function componentsBuild(options) {
         }]
 
     var loaderDirectories = [path.join(__dirname, './loaders'), path.join(__dirname, './node_modules')]
-
+    var modulesDirectories = options.modulesDirectories || ['c']
     if (options.plugins) {
         plugins = plugins.concat(options.plugins)
     }
@@ -95,7 +104,7 @@ function componentsBuild(options) {
             },
             plugins: plugins,
             resolve: {
-                modulesDirectories: ['c']
+                modulesDirectories: modulesDirectories
             }
         })
 }
@@ -122,16 +131,14 @@ var builder = function(options) {
      * using webpack build component modules
      */
     streams.push(
-        componentsBuild(_.extend(
-            {
-                entry: entry,
-                name: outputName,
-            }, {
-                loaders: options.loaders,
-                plugins: options.plugins,
-                loaderDirectories: options.loaderDirectories
-            })
-        )
+        componentsBuild({
+            entry: entry,
+            name: outputName,
+            loaders: options.loaders,
+            plugins: options.plugins,
+            loaderDirectories: options.loaderDirectories,
+            modulesDirectories: options.modulesDirectories
+        })
         .pipe(jsFilter)
         .pipe(save('components:css,images'))
         .pipe(gulpFilter(['*.css']))
