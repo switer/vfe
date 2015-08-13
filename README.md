@@ -52,7 +52,8 @@ Project folders specification:
 
 - **c/**
 	
-	Components director, each sub-director is a component and independent `css`/`js`/`tp`/`image`. Using `require(componentDirName)` to load module, such as load header module: `require("header")` will auto load header.css and header.js.
+	Component modules director, using `require("$componentName")` to load module, such as load header module: `require("header")` will auto load header.css and header.js.
+	> **Note:** It can be replaced of custom_director using modulesDirectories option. [See](https://github.com/switer/vfe#custom-modules-director)
 
 - **lib/**
 	
@@ -64,22 +65,23 @@ Project folders specification:
 
 ## Module path rules
 
-- **require(`"/c/$name/$resource.js"`)** 
+- **require(`"/$components_modules/name/$resource.js"`)** 
 
 	Component resources absolute path.
 
 - **require(`"$name"`)** 
 	
-	Short name of `"/c/$name/$name.js"`.
+	Short name of `"/$components_modules/name/$name.js"`.
 
 - **require(`"$dir/$name"`)** 
 	
-	Short name of `"/c/$dir/$name/$name.js"`.
+	Short name of `"/$components_modules/dir/$name/$name.js"`.
 
 - **require(`"./$name.tpl"`)**
 
 	Loader html template file as a string module.
 
+[More usage](https://github.com/switer/vfe/blob/master/test/index.js)
 
 ## Custom modules director
 ```js
