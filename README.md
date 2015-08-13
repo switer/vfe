@@ -92,9 +92,11 @@ builder({
 })
 ```
 If you don't want use "/c" as component modules director, overwrite it:
+```js
 builder({
 	modulesDirectories: ['components'] // use "/components" as modules director
-})		
+})
+```	
 
 ## Command line
 
