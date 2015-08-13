@@ -57,15 +57,25 @@ Directory structure constraint:
 	
 	Components entry js.
 
-## Module path rule
+## Module path rules
 
-- **require(`"/c/$name/$resource.js"`)** component resources absolute path.
+- **require(`"/c/$name/$resource.js"`)** 
 
-- **require(`"$name"`)** short name of `"/c/$name/$name.js"`
+	Component resources absolute path.
 
-- **require(`"$dir/$name"`)** short name of `"/c/$dir/$name/$name.js"`
+- **require(`"$name"`)** 
+	
+	Short name of `"/c/$name/$name.js"`.
 
-## Command Line
+- **require(`"$dir/$name"`)** 
+	
+	Short name of `"/c/$dir/$name/$name.js"`.
+
+- **require(`./$name.tpl`)**
+
+	Loader html template file as a string module.
+
+## Command line
 
 Init template
 ```bash
@@ -73,7 +83,6 @@ npm install vfe -g
 
 vfe init
 ```
-
 
 ## License
 
