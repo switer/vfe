@@ -77,10 +77,13 @@ Directory structure constraint:
 
 ## Command line
 
-Init template
+Install cli
 ```bash
 npm install vfe -g
+```
 
+Init project using [vfe-template](https://github.com/switer/vfe-init-template)
+```bash
 vfe init
 ```
 
