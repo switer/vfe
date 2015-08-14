@@ -2,7 +2,7 @@
 
 var gulp = require('gulp')
 var path = require('path')
-var uglify = require('gulp-uglifyjs')
+var uglify = require('gulp-uglify')
 var concat = require('gulp-concat')
 var clean = require('gulp-clean')
 var hash = require('gulp-hash')
@@ -13,7 +13,7 @@ var rename = require('gulp-rename')
 var save = require('./tasks/save')
 var webpack = require('webpack')
 var path = require('path')
-var gulpWebPack = require('gulp-webpack')
+var webpackStream = require('webpack-stream')
 var ExtractTextPlugin = require("extract-text-webpack-plugin")
 var ComponentPlugin = require('./plugins/component')
 var _ = require('underscore')
@@ -83,7 +83,7 @@ function componentsBuild(options) {
         loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
 
-    return gulpWebPack({
+    return webpackStream({
             entry: entry,
             output: {
                 filename: 'components.js'
