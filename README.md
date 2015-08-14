@@ -1,6 +1,6 @@
 vfe
 =====
-vfe is a components builder with specified director structure, base on webpack and gulp.
+vfe is a components builder with specified directory structure, base on webpack and gulp.
 
 ## Usage
 
@@ -52,9 +52,9 @@ Project folders specification:
 
 - **c/**
 	
-	Component modules director, default is "/c". Using `require("$componentName")` to load module, 
+	Component modules directory, default is "/c". Using `require("$componentName")` to load module, 
 	such as load header module: `require("header")` will auto load header.css and header.js.
-	> **Note:** It can be replaced of custom_director using modulesDirectories option. [See](https://github.com/switer/vfe#custom-modules-director)
+	> **Note:** It can be replaced of custom_directory using modulesDirectories option. [See](https://github.com/switer/vfe#custom-modules-directory)
 
 - **lib/**
 	
@@ -84,7 +84,7 @@ Project folders specification:
 
 [See more usage](https://github.com/switer/vfe/blob/master/test/index.js)
 
-## Custom modules director
+## Custom modules directory
 ```js
 builder({
 	entry: './index.js',
@@ -92,10 +92,10 @@ builder({
 	modulesDirectories: ['c', 'custom_modules']
 })
 ```
-If you don't want use "/c" as component modules director, overwrite it:
+If you don't want use "/c" as component modules directory, overwrite it:
 ```js
 builder({
-	modulesDirectories: ['components'] // use "/components" as modules director
+	modulesDirectories: ['components'] // use "/components" as modules directory
 })
 ```	
 
