@@ -111,6 +111,21 @@ Init project using [vfe-template](https://github.com/switer/vfe-init-template)
 vfe init
 ```
 
+Run default build task
+```bash
+vfe
+```
+
+Start develop watcher
+```bash
+vfe start
+```
+
+Releasing for production
+```bash
+vfe release
+```
+
 ## License
 
 MIT.
