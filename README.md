@@ -80,7 +80,7 @@ Project folders specification:
 
 - **require(`"./$name.tpl"`)**
 
-	Loader html template file as a string module.
+	Load html template file as a string module.
 
 [See more usage](https://github.com/switer/vfe/blob/master/test/index.js)
 

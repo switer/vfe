@@ -5,8 +5,11 @@ var commander = require('commander')
 var path = require('path')
 var mkdirp = require('mkdirp')
 var request = require('request')
+var childProcess = require('child_process')
 var unzip = require('unzip')
 var ProgressBar = require('progress')
+var vfeGulp = require('vfe-gulp-cli')
+var sync = require('gulp-sync')(vfeGulp).sync
 var ncp = require('ncp').ncp
 var meta = require('../package.json')
 var ENV = process.env
@@ -14,24 +17,30 @@ var tmp_dir = require('path').join(ENV.APPDATA || ENV.HOME || __dirname, '.vfe')
 
 mkdirp.sync(tmp_dir)
 
+function print (o) {
+	console.log(o)
+}
 commander
 	.version(meta.version)
 
 commander
-	.command('init')
+	.command('init [dir]')
+	.option('-p, --proxy <url>', 'enable proxy')
 	.description('Init vfe component project with init-template.')
-	.action(function (dir, action) {
-		if (arguments.length <=1 ) {
-			action = dir
-			dir = null
-		}
+	.action(function (dir, command) {
 		var dest = dir || '.'
 		mkdirp.sync(dest)
-		console.log('Waiting...')
-		request({
-				url: 'https://github.com/switer/vfe-init-template/archive/master.zip',
-				proxy: 'http://proxy.tencent.com:8080'
-			})
+		print('Waiting...')
+		var ropts = {
+			url: 'https://github.com/switer/vfe-init-template/archive/master.zip'
+		}
+		if (!command.proxy || command.proxy === 'true') {
+			ropts.proxy = 'http://proxy.tencent.com:8080'
+		} else if (command.proxy && command.proxy !== 'false') {
+			ropts.proxy = command.proxy
+		}
+
+		request(ropts)
 			.on('response', function (res) {
 				var len = parseInt(res.headers['content-length'], 10)
 				if (len) {
@@ -41,13 +50,13 @@ commander
 						width: 20,
 						total: len
 					})
-					console.log('')
+					print('')
 					res.on('data', function (chunk) {
 				 		bar.tick(chunk.length);
 					})
 				}
 				res.on('end', function () {
-					console.log('')
+					print('')
 				})
 			})
 			.on('error', function (err) {
@@ -64,4 +73,27 @@ commander
 		  	})
 	})
 
+commander
+	.command('start')
+	.description('Start develop server(>: gulp & gulp watch).')
+	.action(function () {
+		vfeGulp.task('vfe-start', sync(['default', 'watch']))
+		vfeGulp.start('vfe-start')
+	})
+
+commander
+	.command('release')
+	.description('Releasing for production(>: gulp release).')
+	.action(function () {
+		vfeGulp.start('release')
+	})
+
+
 commander.parse(process.argv)
+
+/**
+ * vfe
+ */
+if (!commander.args.length) {
+	vfeGulp.start('default')
+}

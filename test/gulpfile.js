@@ -5,6 +5,11 @@ var builder = require('../index')
 
 var dist = './dist'
 
+gulp.task('watch', function () {
+	return gulp.watch(['c/**/*', 'lib/**/*'], function () {
+		gulp.start('default')
+	})
+})
 gulp.task('clean', function () {
 	return gulp.src(dist, {read: false}).pipe(builder.clean())
 })
