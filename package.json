@@ -50,13 +50,13 @@
     "through2": "^2.0.0",
     "underscore": "^1.8.3",
     "unzip": "^0.1.11",
-    "vfe-gulp-cli": "^1.0.0",
+    "vfe-gulp-cli": "^1.0.2",
     "webpack": "^1.10.3"
   },
   "devDependencies": {
     "chalk": "^1.1.0",
     "pretty-hrtime": "^1.0.0",
     "resolve": "^1.1.6",
-    "vfe-gulp-cli": "^1.0.0"
+    "vfe-gulp-cli": "^1.0.2"
   }
 }

@@ -9,7 +9,7 @@ var childProcess = require('child_process')
 var unzip = require('unzip')
 var ProgressBar = require('progress')
 var vfeGulp = require('vfe-gulp-cli')
-var sync = require('gulp-sync')(vfeGulp).sync
+var sync = require('gulp-sync')
 var ncp = require('ncp').ncp
 var meta = require('../package.json')
 var ENV = process.env
@@ -77,15 +77,17 @@ commander
 	.command('start')
 	.description('Start develop server(>: gulp & gulp watch).')
 	.action(function () {
-		vfeGulp.task('vfe-start', sync(['default', 'watch']))
-		vfeGulp.start('vfe-start')
+		var gulp = vfeGulp()
+		gulp.task('vfe-start', sync(gulp).sync(['default', 'watch']))
+		gulp.start('vfe-start')
 	})
 
 commander
 	.command('release')
 	.description('Releasing for production(>: gulp release).')
 	.action(function () {
-		vfeGulp.start('release')
+		var gulp = vfeGulp()
+		gulp.start('release')
 	})
 
 
@@ -95,5 +97,6 @@ commander.parse(process.argv)
  * vfe
  */
 if (!commander.args.length) {
-	vfeGulp.start('default')
+	var gulp = vfeGulp()
+	gulp.start('default')
 }
