@@ -1,6 +1,6 @@
 {
   "name": "vfe",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "vfe build cli, base on webpack & gulp.",
   "main": "index.js",
   "bin": {
@@ -37,7 +37,6 @@
     "gulp-hash": "^2.0.4",
     "gulp-rename": "^1.2.2",
     "gulp-save": "^1.2.1",
-    "gulp-sync": "^0.1.4",
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.6",
     "html-loader": "^0.3.0",
@@ -50,12 +49,10 @@
     "underscore": "^1.8.3",
     "unzip": "^0.1.11",
     "vfe-gulp-cli": "^1.0.2",
-    "webpack": "^1.10.3"
-  },
-  "devDependencies": {
+    "webpack": "^1.10.3",
+    "webpack-stream": "^2.1.0",
     "chalk": "^1.1.0",
     "pretty-hrtime": "^1.0.0",
-    "resolve": "^1.1.6",
-    "vfe-gulp-cli": "^1.0.2"
+    "resolve": "^1.1.6"
   }
 }
