@@ -98,5 +98,5 @@ commander.parse(process.argv)
  */
 if (!commander.args.length) {
 	var gulp = vfeGulp()
-	// gulp.start('default')
+	gulp.start('default')
 }
