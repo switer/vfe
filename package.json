@@ -1,14 +1,13 @@
 {
   "name": "vfe",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "vfe build cli, base on webpack & gulp.",
   "main": "index.js",
   "bin": {
     "vfe": "bin/vfe"
   },
   "scripts": {
-    "test": "cd test/ & gulp",
-    "release": "npmrc tencent & npm publish & npmrc publish & npm publish & npmrc tencent"
+    "test": "cd test/ & gulp"
   },
   "repository": {
     "type": "git",
@@ -52,7 +51,7 @@
     "through2": "^2.0.0",
     "underscore": "^1.8.3",
     "unzip": "^0.1.11",
-    "vfe-gulp-cli": "^1.0.3",
+    "vfe-gulp-cli": "^1.0.4",
     "webpack": "^1.10.3",
     "webpack-stream": "^2.1.0"
   }

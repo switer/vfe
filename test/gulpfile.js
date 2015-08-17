@@ -1,7 +1,7 @@
 'use strict';
 
 var gulp = require('gulp')
-var builder = require('../index')
+var vfe = require('../index')
 
 var dist = './dist'
 
@@ -11,10 +11,10 @@ gulp.task('watch', function () {
 	})
 })
 gulp.task('clean', function () {
-	return gulp.src(dist, {read: false}).pipe(builder.clean())
+	return gulp.src(dist, {read: false}).pipe(vfe.clean())
 })
 gulp.task('default', ['clean'], function () {
-	return builder({
+	return vfe({
 			name: 'vfe-demo',
 			entry: './index.js',
 			libs: './lib/*.js',

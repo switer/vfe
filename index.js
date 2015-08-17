@@ -158,7 +158,8 @@ var builder = function(options) {
             template: '<%= name %>_<%= hash %><%= ext %>'
         }))
         .pipe(save('bundle:js'))
-        .pipe(uglify(outputName + '.min.js', {
+        .pipe(uglify({
+            output: outputName + '.min.js',
             mangle: true,
             compress: true
         }))
