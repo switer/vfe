@@ -158,14 +158,9 @@ var builder = function(options) {
             template: '<%= name %>_<%= hash %><%= ext %>'
         }))
         .pipe(save('bundle:js'))
-        .pipe(uglify({
-            output: outputName + '.min.js',
-            mangle: true,
-            compress: true
-        }))
-        .pipe(hash({
-            hashLength: HASH_LENGTH,
-            template: '<%= name %>_<%= hash %><%= ext %>'
+        .pipe(uglify())
+        .pipe(rename({
+            suffix: '.min'
         }))
         .pipe(save.restore('components:css,images'))
         .pipe(save.restore('components:css.min'))
