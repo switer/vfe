@@ -179,5 +179,29 @@ builder.rename = rename
 builder.merge = merge2
 builder.hash = hash
 builder.filter = gulpFilter
+builder.util = {
+    /**
+     * Run once and lastest one
+     */
+    once: function (fn) {
+        var pending
+        var hasNext
+        function next() {
+            if (pending == false) return
+            pending = false
+            if (hasNext) {
+                hasNext = false
+                fn(next)
+            } 
+        }
+        return function () {
+            if (pending) {
+                return hasNext = true
+            }
+            pending = true
+            fn(next)
+        }
+    }
+}
 
 module.exports = builder

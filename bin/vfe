@@ -13,6 +13,10 @@ var ncp = require('ncp').ncp
 var meta = require('../package.json')
 var ENV = process.env
 var tmp_dir = require('path').join(ENV.APPDATA || ENV.HOME || __dirname, '.vfe')
+var proxies = {
+	tencent: 'http://proxy.tencent.com:8080'
+}
+proxies.tx = proxies.tencent
 
 mkdirp.sync(tmp_dir)
 
@@ -33,12 +37,9 @@ commander
 		var ropts = {
 			url: 'https://github.com/switer/vfe-init-template/archive/master.zip'
 		}
-		if (!command.proxy || command.proxy === 'true') {
-			ropts.proxy = 'http://proxy.tencent.com:8080'
-		} else if (command.proxy && command.proxy !== 'false') {
-			ropts.proxy = command.proxy
+		if (command.proxy) {
+			ropts.proxy = proxies[command.proxy] || command.proxy
 		}
-
 		request(ropts)
 			.on('response', function (res) {
 				var len = parseInt(res.headers['content-length'], 10)
