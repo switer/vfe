@@ -110,6 +110,7 @@ Init project using [vfe-template](https://github.com/switer/vfe-init-template)
 ```bash
 vfe init
 ```
+> **Note**: Using proxy option, `vfe init -p $proxy`. Such as `vfe init -p tx`. See [$tx](https://github.com/switer/vfe/blob/master/bin/vfe#L17) 
 
 Run default build task
 ```bash
