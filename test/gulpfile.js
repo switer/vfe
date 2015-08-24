@@ -18,6 +18,7 @@ gulp.task('default', ['clean'], function () {
 			name: 'vfe-demo',
 			entry: './index.js',
 			libs: './lib/*.js',
+			minify: false,
 			loaders: [{
 				test: /.*\.json$/,
 				loader: 'json-loader'

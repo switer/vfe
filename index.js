@@ -126,11 +126,11 @@ var builder = function(options) {
     streams.push(
         gulp.src(libs)
     )
+
     /**
      * using webpack build component modules
      */
-    streams.push(
-        componentsBuild({
+    var stream = componentsBuild({
             entry: entry,
             name: outputName,
             loaders: options.loaders,
@@ -140,31 +140,50 @@ var builder = function(options) {
         })
         .pipe(jsFilter)
         .pipe(save('components:css,images'))
-        .pipe(gulpFilter(['*.css']))
-        .pipe(cssmin())
-        .pipe(rename({
-            suffix: '.min'
-        }))
-        .pipe(save('components:css.min'))
-        .pipe(jsFilter.restore())
-        .pipe(cssFilter)
+
+    /**
+     * Enable/disable css minify
+     */
+    if (options.minify !== false) {
+        stream = stream
+            .pipe(gulpFilter(['*.css']))
+            .pipe(cssmin())
+            .pipe(rename({
+                suffix: '.min'
+            }))
+            .pipe(save('components:css.min'))
+    }
+    /**
+     * Continue components stream, filter for js concat/minify
+     */
+    streams.push(
+        stream
+            .pipe(jsFilter.restore())
+            .pipe(cssFilter)
     )
 
-
-    return merge2.apply(null, streams)
+    stream = merge2.apply(null, streams)
         .pipe(concat(outputName + '.js', {newLine: ';'}))
         .pipe(hash({
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
         }))
-        .pipe(save('bundle:js'))
-        .pipe(uglify())
-        .pipe(rename({
-            suffix: '.min'
-        }))
-        .pipe(save.restore('components:css,images'))
-        .pipe(save.restore('components:css.min'))
-        .pipe(save.restore('bundle:js'))
+
+    if (options.minify !== false) {
+        stream = stream
+            .pipe(save('bundle:js'))
+            .pipe(uglify())
+            .pipe(rename({
+                suffix: '.min'
+            }))
+            .pipe(save.restore('components:css.min'))
+            .pipe(save.restore('bundle:js'))
+    }
+ 
+    return stream
+            .pipe(save.restore('components:css,images'))
+            // .pipe(save.restore('components:css.min'))
+            // .pipe(save.restore('bundle:js'))
 }
 
 builder.clean = clean
