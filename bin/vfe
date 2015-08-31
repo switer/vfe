@@ -77,17 +77,27 @@ commander
 commander
 	.command('start')
 	.description('Start develop server(>: gulp & gulp watch).')
-	.action(function () {
+	.action(function (task) {
+		if (arguments.length >= 2) {
+			task = 'start-' + task
+		} else {
+			task = 'default'
+		}
 		var gulp = vfeGulp()
-		gulp.start(['default', 'watch'])
+		gulp.start([task, 'watch'])
 	})
 
 commander
 	.command('release')
 	.description('Releasing for production(>: gulp release).')
-	.action(function () {
+	.action(function (task) {
+		if (arguments.length >= 2) {
+			task = 'release-' + task
+		} else {
+			task = 'release'
+		}
 		var gulp = vfeGulp()
-		gulp.start('release')
+		gulp.start(task)
 	})
 
 
