@@ -86,7 +86,7 @@ Project folders specification:
 
 ## Custom modules directory
 ```js
-builder({
+vfe({
 	entry: './index.js',
 	libs: './lib/*.js',
 	modulesDirectories: ['c', 'custom_modules']
@@ -94,7 +94,7 @@ builder({
 ```
 If you don't want use "/c" as component modules directory, overwrite it:
 ```js
-builder({
+vfe({
 	modulesDirectories: ['components'] // use "/components" as modules directory
 })
 ```	
@@ -121,11 +121,13 @@ Start develop watcher
 ```bash
 vfe start
 ```
+> Note: Start command support sub-task(`vfe start sometask`) if task is registered as "start-sometask"
 
 Releasing for production
 ```bash
 vfe release
 ```
+> Note: Release command support sub-task(`vfe release sometask`) if task is registered as "release-sometask"
 
 ## License
 
