@@ -121,13 +121,13 @@ Start develop watcher
 ```bash
 vfe start
 ```
-> Note: Start command support run task with custom name (`vfe start sometask`) if task is registered as "start-sometask"
+> Note: Start command support run with another task name, such as `vfe start sometask`, only if task name is `start-sometask`.
 
 Releasing for production
 ```bash
 vfe release
 ```
-> Note: Release command support run task with custom name (`vfe release sometask`) if task is registered as "release-sometask"
+> Note: Release command support run with another task name, such as `vfe release sometask`, only if task name is `release-sometask`.
 
 ## License
 
