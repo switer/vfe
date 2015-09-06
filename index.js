@@ -6,6 +6,7 @@ var uglify = require('gulp-uglify')
 var concat = require('gulp-concat')
 var clean = require('gulp-clean')
 var hash = require('gulp-hash')
+var gulpif = require('gulp-if')
 var merge2 = require('merge2')
 var gulpFilter = require('gulp-filter')
 var cssmin = require('gulp-cssmin')
@@ -140,50 +141,41 @@ var builder = function(options) {
         })
         .pipe(jsFilter)
         .pipe(save('components:css,images'))
+        .pipe(gulpif(options.minify !== false, 
+                gulpFilter(['*.css']),
+                cssmin(),
+                rename({
+                    suffix: '.min'
+                }),
+                save('components:css.min')
+        ))
+        .pipe(jsFilter.restore())
+        .pipe(cssFilter)
 
-    /**
-     * Enable/disable css minify
-     */
-    if (options.minify !== false) {
-        stream = stream
-            .pipe(gulpFilter(['*.css']))
-            .pipe(cssmin())
-            .pipe(rename({
-                suffix: '.min'
-            }))
-            .pipe(save('components:css.min'))
-    }
     /**
      * Continue components stream, filter for js concat/minify
      */
     streams.push(
         stream
-            .pipe(jsFilter.restore())
-            .pipe(cssFilter)
     )
-
     stream = merge2.apply(null, streams)
         .pipe(concat(outputName + '.js', {newLine: ';'}))
         .pipe(hash({
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
         }))
-
-    if (options.minify !== false) {
-        stream = stream
-            .pipe(save('bundle:js'))
-            .pipe(uglify())
-            .pipe(rename({
+        .pipe(gulpif(options.minify !== false, 
+            save('bundle:js'), 
+            uglify(), 
+            rename({
                 suffix: '.min'
-            }))
-            .pipe(save.restore('components:css.min'))
-            .pipe(save.restore('bundle:js'))
-    }
+            })),
+            save.restore('components:css.min'),
+            save.restore('bundle:js')
+        )
+        .pipe(save.restore('components:css,images'))
  
     return stream
-            .pipe(save.restore('components:css,images'))
-            // .pipe(save.restore('components:css.min'))
-            // .pipe(save.restore('bundle:js'))
 }
 
 builder.clean = clean
@@ -193,6 +185,7 @@ builder.cssmin = cssmin
 builder.rename = rename
 builder.merge = merge2
 builder.hash = hash
+builder.if = gulpif
 builder.filter = gulpFilter
 builder.util = {
     /**

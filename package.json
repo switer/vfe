@@ -36,6 +36,7 @@
     "gulp-cssmin": "^0.1.7",
     "gulp-filter": "^2.0.2",
     "gulp-hash": "^2.0.4",
+    "gulp-if": "^1.2.5",
     "gulp-rename": "^1.2.2",
     "gulp-save": "^1.2.1",
     "gulp-uglify": "^1.2.0",
