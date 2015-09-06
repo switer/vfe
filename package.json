@@ -1,6 +1,6 @@
 {
-  "name": "vfe",
-  "version": "1.2.1",
+  "name": "vfem",
+  "version": "1.0.0",
   "description": "vfe build cli, base on webpack & gulp.",
   "main": "index.js",
   "bin": {
@@ -27,13 +27,11 @@
   "dependencies": {
     "chalk": "^1.1.0",
     "commander": "^2.8.1",
-    "css-loader": "^0.15.5",
     "extract-text-webpack-plugin": "^0.8.2",
     "file-loader": "^0.8.4",
     "gulp": "^3.9.0",
     "gulp-clean": "^0.3.1",
     "gulp-concat": "^2.6.0",
-    "gulp-cssmin": "^0.1.7",
     "gulp-filter": "^2.0.2",
     "gulp-hash": "^2.0.4",
     "gulp-rename": "^1.2.2",

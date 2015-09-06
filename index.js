@@ -56,17 +56,12 @@ function componentsBuild(options) {
                     return './' + fname
                 })
                 return f
-            }),
-            // extract css bundle
-            new ExtractTextPlugin(outputName + '_[hash:' + HASH_LENGTH +  '].css')
+            })
         ]
 
     var loaders = [{
             test: /.*?\.tpl$/,
             loader: 'html-loader'
-        }, {
-            test: /\.css$/,
-            loader: ExtractTextPlugin.extract("css-loader")
         }, {
             test: /\.(png|jpg|gif|jpeg|webp)$/,
             loader: "file-loader?name=[path][name]_[hash:" + HASH_LENGTH + "].[ext]"
@@ -113,7 +108,6 @@ var builder = function(options) {
 
     options = options || {}
     var outputName = options.name || 'bundle'
-    var cssFilter = gulpFilter(['*.js', '!*.css'])
     var jsFilter = gulpFilter(['**/*', '!*.js'])
 
     var entry = options.entry || './index.js'
@@ -182,8 +176,6 @@ var builder = function(options) {
  
     return stream
             .pipe(save.restore('components:css,images'))
-            // .pipe(save.restore('components:css.min'))
-            // .pipe(save.restore('bundle:js'))
 }
 
 builder.clean = clean
