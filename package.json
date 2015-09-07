@@ -7,7 +7,8 @@
     "vfe": "bin/vfe"
   },
   "scripts": {
-    "test": "cd test/ && gulp"
+    "test": "cd test/ && gulp",
+    "sync": "curl https://raw.githubusercontent.com/switer/vfe-cli/master/bin/vfe > bin/vfe"
   },
   "repository": {
     "type": "git",
