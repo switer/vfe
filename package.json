@@ -7,7 +7,7 @@
     "vfe": "bin/vfe"
   },
   "scripts": {
-    "test": "cd test/ & gulp"
+    "test": "cd test/ && gulp"
   },
   "repository": {
     "type": "git",

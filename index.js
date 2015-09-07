@@ -131,7 +131,8 @@ var builder = function(options) {
     /**
      * using webpack build component modules
      */
-    var stream = componentsBuild({
+    streams.push(
+        componentsBuild({
             entry: entry,
             name: outputName,
             loaders: options.loaders,
@@ -151,14 +152,9 @@ var builder = function(options) {
         ))
         .pipe(jsFilter.restore())
         .pipe(cssFilter)
-
-    /**
-     * Continue components stream, filter for js concat/minify
-     */
-    streams.push(
-        stream
     )
-    stream = merge2.apply(null, streams)
+    
+    return merge2.apply(null, streams)
         .pipe(concat(outputName + '.js', {newLine: ';'}))
         .pipe(hash({
             hashLength: HASH_LENGTH,
@@ -174,8 +170,6 @@ var builder = function(options) {
             save.restore('bundle:js')
         )
         .pipe(save.restore('components:css,images'))
- 
-    return stream
 }
 
 builder.clean = clean
