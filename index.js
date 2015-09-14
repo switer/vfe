@@ -134,13 +134,20 @@ var builder = function(options) {
             modulesDirectories: options.modulesDirectories
         })
     )
-    
-    return merge2.apply(null, streams)
+
+    var stream = merge2.apply(null, streams)
         .pipe(concat(outputName + '.js', {newLine: ';'}))
         .pipe(hash({
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
         }))
+    
+    return options.minify === false ? stream : stream.pipe(save('bundle:js'))
+                                                    .pipe(uglify())
+                                                    .pipe(rename({
+                                                        suffix: '.min'
+                                                    }))
+                                                    .pipe(save.restore('bundle:js'))
 }
 
 builder.clean = clean
