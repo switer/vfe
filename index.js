@@ -73,7 +73,12 @@ function componentsBuild(options) {
             loader: "file-loader?name=[path][name]_[hash:" + HASH_LENGTH + "].[ext]"
         }]
 
-    var loaderDirectories = [path.join(__dirname, './loaders'), path.join(__dirname, './node_modules')]
+    var loaderDirectories = [
+        path.join(__dirname, './loaders'), 
+        path.join(__dirname, './node_modules'), 
+        path.join(__dirname, '../') // parent node_modules
+    ]
+
     if (options.plugins) {
         plugins = plugins.concat(options.plugins)
     }
@@ -104,7 +109,8 @@ function componentsBuild(options) {
             },
             plugins: plugins,
             resolve: {
-                modulesDirectories: options.modulesDirectories || ['c']
+                modulesDirectories: options.modulesDirectories || ['c'],
+                extensions: ['', '.webpack.js', '.web.js', '.js', '.jsx', '.coffee']
             }
         })
 }
