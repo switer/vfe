@@ -8,6 +8,7 @@ var clean = require('gulp-clean')
 var hash = require('gulp-hash')
 var gulpif = require('gulp-if')
 var merge2 = require('merge2')
+var multipipe = require('multipipe')
 var gulpFilter = require('gulp-filter')
 var cssmin = require('gulp-cssmin')
 var rename = require('gulp-rename')
@@ -28,7 +29,7 @@ function componentsBuild(options) {
     var plugins = [
             // *(dir/component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
-            	var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
+                var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
                 var cdir = matches[1]
                 var cname = matches[2]
                 f.request = cdir + '/' + cname + '/' + cname
@@ -110,8 +111,8 @@ function componentsBuild(options) {
             plugins: plugins,
             resolve: {
                 modulesDirectories: options.modulesDirectories || ['c'],
-                extensions: ['', '.webpack.js', '.web.js', '.js', '.jsx', '.coffee']
-            }
+                extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
+            },
         })
 }
 
@@ -127,7 +128,7 @@ var builder = function(options) {
     var libs = options.libs || ['./lib/*.js']
 
     var streams = []
-	/**
+    /**
      * concat component js bundle with lib js
      */
     streams.push(
@@ -148,18 +149,17 @@ var builder = function(options) {
         })
         .pipe(jsFilter)
         .pipe(save('components:css,images'))
-        .pipe(gulpif(options.minify !== false, 
-                gulpFilter(['*.css']),
-                cssmin(),
-                rename({
-                    suffix: '.min'
-                }),
+        .pipe(gulpif(options.minify !== false,
+            multipipe(
+                gulpFilter(['*.css']), 
+                cssmin(), 
+                rename({ suffix: '.min' }), 
                 save('components:css.min')
+            )
         ))
         .pipe(jsFilter.restore())
         .pipe(cssFilter)
     )
-    
     return merge2.apply(null, streams)
         .pipe(concat(outputName + '.js', {newLine: ';'}))
         .pipe(hash({
@@ -167,14 +167,14 @@ var builder = function(options) {
             template: '<%= name %>_<%= hash %><%= ext %>'
         }))
         .pipe(gulpif(options.minify !== false, 
-            save('bundle:js'), 
-            uglify(), 
-            rename({
-                suffix: '.min'
-            })),
-            save.restore('components:css.min'),
-            save.restore('bundle:js')
-        )
+            multipipe(
+                save('bundle:js'),
+                uglify(),
+                rename({ suffix: '.min' }),
+                save.restore('components:css.min'),
+                save.restore('bundle:js')
+            )
+        ))
         .pipe(save.restore('components:css,images'))
 }
 
@@ -187,6 +187,7 @@ builder.merge = merge2
 builder.hash = hash
 builder.if = gulpif
 builder.filter = gulpFilter
+builder.multipipe = multipipe
 builder.util = {
     /**
      * Run once and lastest one
