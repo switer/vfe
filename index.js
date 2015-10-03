@@ -8,6 +8,7 @@ var clean = require('gulp-clean')
 var hash = require('gulp-hash')
 var gulpif = require('gulp-if')
 var merge2 = require('merge2')
+var multipipe = require('multipipe')
 var gulpFilter = require('gulp-filter')
 var cssmin = require('gulp-cssmin')
 var rename = require('gulp-rename')
@@ -21,14 +22,16 @@ var _ = require('underscore')
 var HASH_LENGTH = 6
 
 var root = process.cwd()
-
+function noop () {}
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
+    var onRequest = options.onRequest || noop
     var outputName = options.name
     var plugins = [
             // *(dir/component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
-            	var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
+                if (onRequest(f) === false) return
+                var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
                 var cdir = matches[1]
                 var cname = matches[2]
                 f.request = cdir + '/' + cname + '/' + cname
@@ -36,12 +39,14 @@ function componentsBuild(options) {
             }),
             // *(component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
+                if (onRequest(f) === false) return
                 var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
                 f.request = cname + '/' + cname
                 return f
             }),
             // /modules_directory/component:[^\.]
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
+                if (onRequest(f) === false) return
                 var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
                 var cdir = matches[1]
                 var cname = matches[2]
@@ -52,6 +57,7 @@ function componentsBuild(options) {
             }),
             // /*: absolute path
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+/, function(f) {
+                if (onRequest(f) === false) return
                 f.request = f.request.replace(/^[\/\\]([^\/\\]+)/, function (m, fname) {
                     f.context = root
                     return './' + fname
@@ -105,8 +111,8 @@ function componentsBuild(options) {
             plugins: plugins,
             resolve: {
                 modulesDirectories: options.modulesDirectories || ['c'],
-                extensions: ['', '.webpack.js', '.web.js', '.js', '.jsx', '.coffee']
-            }
+                extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
+            },
         })
 }
 
@@ -120,7 +126,7 @@ var builder = function(options) {
     var libs = options.libs || ['./lib/*.js']
 
     var streams = []
-	/**
+    /**
      * concat component js bundle with lib js
      */
     streams.push(
@@ -131,13 +137,9 @@ var builder = function(options) {
      * using webpack build component modules
      */
     streams.push(
-        componentsBuild({
+        componentsBuild(_.extend({}, options, {
             entry: entry,
-            name: outputName,
-            loaders: options.loaders,
-            plugins: options.plugins,
-            loaderDirectories: options.loaderDirectories,
-            modulesDirectories: options.modulesDirectories
+            name: outputName
         })
     )
 
@@ -147,7 +149,6 @@ var builder = function(options) {
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
         }))
-    
     return options.minify === false ? stream : stream.pipe(save('bundle:js'))
                                                     .pipe(uglify())
                                                     .pipe(rename({
@@ -165,6 +166,7 @@ builder.merge = merge2
 builder.hash = hash
 builder.if = gulpif
 builder.filter = gulpFilter
+builder.multipipe = multipipe
 builder.util = {
     /**
      * Run once and lastest one
