@@ -22,13 +22,15 @@ var _ = require('underscore')
 var HASH_LENGTH = 6
 
 var root = process.cwd()
-
+function noop () {}
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
+    var onRequest = options.onRequest || noop
     var outputName = options.name
     var plugins = [
             // *(dir/component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
+                if (onRequest(f) === false) return
                 var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
                 var cdir = matches[1]
                 var cname = matches[2]
@@ -37,12 +39,14 @@ function componentsBuild(options) {
             }),
             // *(component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
+                if (onRequest(f) === false) return
                 var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
                 f.request = cname + '/' + cname
                 return f
             }),
             // /modules_directory/component:[^\.]
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
+                if (onRequest(f) === false) return
                 var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
                 var cdir = matches[1]
                 var cname = matches[2]
@@ -53,6 +57,7 @@ function componentsBuild(options) {
             }),
             // /*: absolute path
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+/, function(f) {
+                if (onRequest(f) === false) return
                 f.request = f.request.replace(/^[\/\\]([^\/\\]+)/, function (m, fname) {
                     f.context = root
                     return './' + fname
@@ -139,14 +144,10 @@ var builder = function(options) {
      * using webpack build component modules
      */
     streams.push(
-        componentsBuild({
+        componentsBuild(_.extend({}, options, {
             entry: entry,
-            name: outputName,
-            loaders: options.loaders,
-            plugins: options.plugins,
-            loaderDirectories: options.loaderDirectories,
-            modulesDirectories: options.modulesDirectories
-        })
+            name: outputName
+        }))
         .pipe(jsFilter)
         .pipe(save('components:css,images'))
         .pipe(gulpif(options.minify !== false,
