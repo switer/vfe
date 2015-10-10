@@ -95,11 +95,8 @@ function componentsBuild(options) {
         loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
 
-    return webpackStream({
+    return webpackStream(_.extend({}, options, {
             entry: entry,
-            output: {
-                filename: 'components.js'
-            },
             module: {
                 preLoaders: [{
                     test: /[\/\\]c[\/\\][^\/\\]+[\/\\][^\/\\]+[\/\\][^\/\\]+\.js/,
@@ -118,7 +115,7 @@ function componentsBuild(options) {
                 modulesDirectories: options.modulesDirectories || ['c'],
                 extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
             },
-        })
+        }))
 }
 
 
