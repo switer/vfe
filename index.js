@@ -10,7 +10,6 @@ var gulpif = require('gulp-if')
 var merge2 = require('merge2')
 var multipipe = require('multipipe')
 var gulpFilter = require('gulp-filter')
-var cssmin = require('gulp-cssmin')
 var rename = require('gulp-rename')
 var save = require('./tasks/save')
 var webpack = require('webpack')
@@ -90,16 +89,10 @@ function componentsBuild(options) {
         loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
 
+    var resolveModules = options.modulesDirectories || ['c']
     return webpackStream(_.extend({}, options, {
             entry: entry,
             module: {
-                preLoaders: [{
-                    test: /[\/\\]c[\/\\][^\/\\]+[\/\\][^\/\\]+[\/\\][^\/\\]+\.js/,
-                    loader: 'component'
-                },{
-                    test: /[\/\\]c[\/\\][^\/\\]+[\/\\][^\/\\]+\.js/,
-                    loader: 'component'
-                }],
                 loaders: loaders
             },
             resolveLoader: {
@@ -107,7 +100,7 @@ function componentsBuild(options) {
             },
             plugins: plugins,
             resolve: {
-                modulesDirectories: options.modulesDirectories || ['c'],
+                modulesDirectories: resolveModules,
                 extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
             },
         }))
@@ -157,7 +150,6 @@ var builder = function(options) {
 builder.clean = clean
 builder.concat = concat
 builder.uglify = uglify
-builder.cssmin = cssmin
 builder.rename = rename
 builder.merge = merge2
 builder.hash = hash
