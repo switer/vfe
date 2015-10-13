@@ -95,14 +95,23 @@ function componentsBuild(options) {
         loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
 
+    var resolveModules = options.modulesDirectories || ['c']
     return webpackStream(_.extend({}, options, {
             entry: entry,
             module: {
                 preLoaders: [{
-                    test: /[\/\\]c[\/\\][^\/\\]+[\/\\][^\/\\]+[\/\\][^\/\\]+\.js/,
+                    test: new RegExp('/($dir)/$w+/$w+/$w+\.js$'
+                        .replace(/\//g, '[\/\\\\]')
+                        .replace(/\$w/g, '[^\/\\\\]')
+                        .replace('$dir', resolveModules.join('|'))
+                    ),
                     loader: 'component'
                 },{
-                    test: /[\/\\]c[\/\\][^\/\\]+[\/\\][^\/\\]+\.js/,
+                    test: new RegExp('/($dir)/$w+/$w+\.js$'
+                        .replace(/\//g, '[\/\\\\]')
+                        .replace(/\$w/g, '[^\.\/\\\\]')
+                        .replace('$dir', resolveModules.join('|'))
+                    ),
                     loader: 'component'
                 }],
                 loaders: loaders
@@ -112,7 +121,7 @@ function componentsBuild(options) {
             },
             plugins: plugins,
             resolve: {
-                modulesDirectories: options.modulesDirectories || ['c'],
+                modulesDirectories: resolveModules,
                 extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
             },
         }))
