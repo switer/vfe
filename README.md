@@ -3,8 +3,9 @@ vfe
 vfe is a components builder with specified directory structure, base on webpack and gulp.
 
 ## Usage
+See [example](https://github.com/switer/vfe-init-template).
 
-Installing.
+Installing:
 ```js
 npm install vfe --save
 ```
