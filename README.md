@@ -3,7 +3,7 @@ vfe
 vfe is a components builder with specified directory structure, base on webpack and gulp.
 
 - [usage](https://github.com/switer/vfe#usage)
-- [require rules](https://github.com/switer/vfe#module-path-rules)
+- [require rules](https://github.com/switer/vfe#require-rules)
 - [custom modules directory](https://github.com/switer/vfe#custom-modules-directory)
 - [command line](https://github.com/switer/vfe#command-line)
 
