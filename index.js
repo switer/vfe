@@ -27,6 +27,7 @@ function componentsBuild(options) {
     var entry = options.entry || './index.js'
     var onRequest = options.onRequest || noop
     var outputName = options.name
+    var cssOutputName = options.hash == false ? '[name].css' : '[name]_[hash:' + HASH_LENGTH +  '].css'
     var plugins = [
             // *(dir/component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
@@ -65,7 +66,7 @@ function componentsBuild(options) {
                 return f
             }),
             // extract css bundle
-            new ExtractTextPlugin(outputName + '_[hash:' + HASH_LENGTH +  '].css')
+            new ExtractTextPlugin('[name]_[hash:' + HASH_LENGTH +  '].css')
         ]
 
     var loaders = [{
@@ -131,18 +132,17 @@ function componentsBuild(options) {
 var builder = function(options) {
 
     options = options || {}
-    var outputName = options.name || 'bundle'
     var cssFilter = gulpFilter(['*.js', '!*.css'])
     var jsFilter = gulpFilter(['**/*', '!*.js'])
 
-    var entry = options.entry || './index.js'
-    var libs = options.libs || ['./lib/*.js']
-
+    // var entry = options.entry || './index.js'
+    var libs = options.libs
+    var isConcatLibs = libs && libs.length && options.name
     var streams = []
     /**
      * concat component js bundle with lib js
      */
-    streams.push(
+    isConcatLibs && streams.push(
         gulp.src(libs)
     )
 
@@ -150,10 +150,7 @@ var builder = function(options) {
      * using webpack build component modules
      */
     streams.push(
-        componentsBuild(_.extend({}, options, {
-            entry: entry,
-            name: outputName
-        }))
+        componentsBuild(_.extend({}, options))
         .pipe(jsFilter)
         .pipe(save('components:css,images'))
         .pipe(gulpif(options.minify !== false,
@@ -168,11 +165,11 @@ var builder = function(options) {
         .pipe(cssFilter)
     )
     return merge2.apply(null, streams)
-        .pipe(concat(outputName + '.js', {newLine: ';'}))
-        .pipe(hash({
+        .pipe(gulpif(isConcatLibs, concat(options.name + '.js', {newLine: ';'})))
+        .pipe(gulpif(options.hash !== false, hash({
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
-        }))
+        })))
         .pipe(gulpif(options.minify !== false, 
             multipipe(
                 save('bundle:js'),

@@ -15,8 +15,13 @@ gulp.task('clean', function () {
 })
 gulp.task('default', ['clean'], function () {
 	return vfe({
-			name: 'vfe-demo',
-			entry: './index.js',
+			entry: {
+				a: './main',
+				b: './c/pages/index/index.js'
+			},
+			output: {
+				filename: '[name].js',				
+			},
 			libs: './lib/*.js',
 			minify: false,
 			loaders: [{
@@ -24,7 +29,7 @@ gulp.task('default', ['clean'], function () {
 				loader: 'json-loader'
 			}],
 			loaderDirectories: ['webpack-loaders'],
-			modulesDirectories: ['c', 'custom_modules']
+			modulesDirectories: ['', 'c', 'custom_modules']
 		})
 		.pipe(gulp.dest(dist))
 })
