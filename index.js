@@ -26,8 +26,8 @@ function noop () {}
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
     var onRequest = options.onRequest || noop
-    var outputName = options.name
-    var cssOutputName = options.hash == false ? '[name].css' : '[name]_[hash:' + HASH_LENGTH +  '].css'
+    var usingHash = options.hash !== false
+    var cssOutputName = usingHash ? '[name]_[hash:' + HASH_LENGTH +  '].css' : '[name].css'
     var plugins = [
             // *(dir/component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
@@ -66,7 +66,7 @@ function componentsBuild(options) {
                 return f
             }),
             // extract css bundle
-            new ExtractTextPlugin('[name]_[hash:' + HASH_LENGTH +  '].css')
+            new ExtractTextPlugin(cssOutputName)
         ]
 
     var loaders = [{
@@ -77,54 +77,89 @@ function componentsBuild(options) {
             loader: ExtractTextPlugin.extract("css-loader")
         }, {
             test: /\.(png|jpg|gif|jpeg|webp)$/,
-            loader: "file-loader?name=[path][name]_[hash:" + HASH_LENGTH + "].[ext]"
+            loader: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
         }]
+    var preLoaders = []
 
     var loaderDirectories = [
         path.join(__dirname, './loaders'), 
         path.join(__dirname, './node_modules'), 
         path.join(__dirname, '../') // parent node_modules
     ]
+    var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
+    var moduleOpt = options.module
+    var resolveOpt = options.resolve
+    var resolveLoaderOpt = options.resolveLoader
+    var resolveModules = [] // below will set default to "c" directory
 
+    // options: plugins
     if (options.plugins) {
         plugins = plugins.concat(options.plugins)
     }
+    // options: loaders @vfe
     if (options.loaders) {
         loaders = loaders.concat(options.loaders)
     }
+    // options: loaderDirectories @vfe
     if (options.loaderDirectories) {
         loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
+    // options: modulesDirectories @vfe
+    if (options.modulesDirectories && options.modulesDirectories.length) {
+        resolveModules = resolveModules.concat(options.modulesDirectories)
+    }
+    // options: module.preLoaders
+    if (moduleOpt && moduleOpt.preLoaders) {
+        preLoaders = preLoaders.concat(moduleOpt.preLoaders)
+    }
+    // options: module.loaders
+    if (moduleOpt && moduleOpt.loaders) {
+        loaders = loaders.concat(moduleOpt.loaders)
+    }
+    // options: resolve.extensions
+    if (resolveOpt && resolveOpt.extensions) {
+        extensions = extensions.concat(resolveOpt.extensions)
+    }
+    // options: resolve.modulesDirectories
+    if (resolveOpt && resolveOpt.modulesDirectories) {
+        resolveModules = resolveModules.concat(resolveOpt.modulesDirectories)
+    }
+    // options: resolveLoader.modulesDirectories
+    if (resolveLoaderOpt && resolveLoaderOpt.modulesDirectories) {
+        loaderDirectories = loaderDirectories.concat(resolveLoaderOpt.modulesDirectories)
+    }
 
-    var resolveModules = options.modulesDirectories || ['c']
+    resolveModules = resolveModules && resolveModules.length ?  resolveModules : ['c']
+    preLoaders = [{
+        test: new RegExp('/($dir)/$w+/$w+/$w+\.js$'
+            .replace(/\//g, '[\/\\\\]')
+            .replace(/\$w/g, '[^\/\\\\]')
+            .replace('$dir', resolveModules.join('|'))
+        ),
+        loader: 'component'
+    },{
+        test: new RegExp('/($dir)/$w+/$w+\.js$'
+            .replace(/\//g, '[\/\\\\]')
+            .replace(/\$w/g, '[^\.\/\\\\]')
+            .replace('$dir', resolveModules.join('|'))
+        ),
+        loader: 'component'
+    }].concat(preLoaders)
+
     return webpackStream(_.extend({}, options, {
             entry: entry,
-            module: {
-                preLoaders: [{
-                    test: new RegExp('/($dir)/$w+/$w+/$w+\.js$'
-                        .replace(/\//g, '[\/\\\\]')
-                        .replace(/\$w/g, '[^\/\\\\]')
-                        .replace('$dir', resolveModules.join('|'))
-                    ),
-                    loader: 'component'
-                },{
-                    test: new RegExp('/($dir)/$w+/$w+\.js$'
-                        .replace(/\//g, '[\/\\\\]')
-                        .replace(/\$w/g, '[^\.\/\\\\]')
-                        .replace('$dir', resolveModules.join('|'))
-                    ),
-                    loader: 'component'
-                }],
+            module: _.extend({}, moduleOpt, {
+                preLoaders: preLoaders,
                 loaders: loaders
-            },
-            resolveLoader: {
+            }),
+            resolveLoader: _.extend({}, options.resolveLoader, {
                 modulesDirectories: loaderDirectories
-            },
+            }),
             plugins: plugins,
-            resolve: {
+            resolve: _.extend({}, resolveOpt, {
                 modulesDirectories: resolveModules,
-                extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
-            },
+                extensions: extensions
+            }),
         }))
 }
 
@@ -139,6 +174,7 @@ var builder = function(options) {
     var libs = options.libs
     var isConcatLibs = libs && libs.length && options.name
     var streams = []
+
     /**
      * concat component js bundle with lib js
      */
@@ -172,11 +208,11 @@ var builder = function(options) {
         })))
         .pipe(gulpif(options.minify !== false, 
             multipipe(
-                save('bundle:js'),
+                save('components:js'),
                 uglify(),
                 rename({ suffix: '.min' }),
                 save.restore('components:css.min'),
-                save.restore('bundle:js')
+                save.restore('components:js')
             )
         ))
         .pipe(save.restore('components:css,images'))

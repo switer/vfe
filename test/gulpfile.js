@@ -23,7 +23,8 @@ gulp.task('default', ['clean'], function () {
 				filename: '[name].js',				
 			},
 			libs: './lib/*.js',
-			minify: false,
+			hash: true,
+			minify: true,
 			loaders: [{
 				test: /.*\.json$/,
 				loader: 'json-loader'
