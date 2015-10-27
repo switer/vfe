@@ -25,7 +25,7 @@ function noop () {}
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
     var onRequest = options.onRequest || noop
-    var outputName = options.name
+    var usingHash = options.hash !== false
     var plugins = [
             // *(dir/component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
@@ -70,39 +70,75 @@ function componentsBuild(options) {
             loader: 'html-loader'
         }, {
             test: /\.(png|jpg|gif|jpeg|webp)$/,
-            loader: "file-loader?name=[path][name]_[hash:" + HASH_LENGTH + "].[ext]"
+            loader: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
         }]
+    var preLoaders = []
 
     var loaderDirectories = [
         path.join(__dirname, './loaders'), 
         path.join(__dirname, './node_modules'), 
         path.join(__dirname, '../') // parent node_modules
     ]
+    var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
+    var moduleOpt = options.module
+    var resolveOpt = options.resolve
+    var resolveLoaderOpt = options.resolveLoader
+    var resolveModules = [] // below will set default to "c" directory
 
+    // options: plugins
     if (options.plugins) {
         plugins = plugins.concat(options.plugins)
     }
+    // options: loaders @vfe
     if (options.loaders) {
         loaders = loaders.concat(options.loaders)
     }
+    // options: loaderDirectories @vfe
     if (options.loaderDirectories) {
         loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
+    // options: modulesDirectories @vfe
+    if (options.modulesDirectories && options.modulesDirectories.length) {
+        resolveModules = resolveModules.concat(options.modulesDirectories)
+    }
+    // options: module.preLoaders
+    if (moduleOpt && moduleOpt.preLoaders) {
+        preLoaders = preLoaders.concat(moduleOpt.preLoaders)
+    }
+    // options: module.loaders
+    if (moduleOpt && moduleOpt.loaders) {
+        loaders = loaders.concat(moduleOpt.loaders)
+    }
+    // options: resolve.extensions
+    if (resolveOpt && resolveOpt.extensions) {
+        extensions = extensions.concat(resolveOpt.extensions)
+    }
+    // options: resolve.modulesDirectories
+    if (resolveOpt && resolveOpt.modulesDirectories) {
+        resolveModules = resolveModules.concat(resolveOpt.modulesDirectories)
+    }
+    // options: resolveLoader.modulesDirectories
+    if (resolveLoaderOpt && resolveLoaderOpt.modulesDirectories) {
+        loaderDirectories = loaderDirectories.concat(resolveLoaderOpt.modulesDirectories)
+    }
 
-    var resolveModules = options.modulesDirectories || ['c']
+    resolveModules = resolveModules && resolveModules.length ?  resolveModules : ['c']
+    preLoaders = [].concat(preLoaders)
+
     return webpackStream(_.extend({}, options, {
             entry: entry,
-            module: {
+            module: _.extend({}, moduleOpt, {
+                preLoaders: preLoaders,
                 loaders: loaders
-            },
-            resolveLoader: {
+            }),
+            resolveLoader: _.extend({}, options.resolveLoader, {
                 modulesDirectories: loaderDirectories
-            },
+            }),
             plugins: plugins,
-            resolve: {
+            resolve: _.extend({}, resolveOpt, {
                 modulesDirectories: resolveModules,
-                extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
-            },
+                extensions: extensions
+            }),
         }))
 }
 
@@ -110,16 +146,15 @@ function componentsBuild(options) {
 var builder = function(options) {
 
     options = options || {}
-    var outputName = options.name || 'bundle'
     var jsFilter = gulpFilter(['**/*', '!*.js'])
-    var entry = options.entry || './index.js'
-    var libs = options.libs || ['./lib/*.js']
-
+    var libs = options.libs
+    var isConcatLibs = libs && libs.length && options.name
     var streams = []
+
     /**
      * concat component js bundle with lib js
      */
-    streams.push(
+    isConcatLibs && streams.push(
         gulp.src(libs)
     )
 
@@ -127,24 +162,23 @@ var builder = function(options) {
      * using webpack build component modules
      */
     streams.push(
-        componentsBuild(_.extend({}, options, {
-            entry: entry,
-            name: outputName
-        }))
+        componentsBuild(_.extend({}, options))
     )
 
     var stream = merge2.apply(null, streams)
-        .pipe(concat(outputName + '.js', {newLine: ';'}))
-        .pipe(hash({
+        .pipe(gulpif(isConcatLibs, concat(options.name + '.js', {newLine: ';'})))
+        .pipe(gulpif(options.hash !== false, hash({
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
-        }))
-    return options.minify === false ? stream : stream.pipe(save('bundle:js'))
-                                                    .pipe(uglify())
-                                                    .pipe(rename({
-                                                        suffix: '.min'
-                                                    }))
-                                                    .pipe(save.restore('bundle:js'))
+        })))
+    return options.minify === false 
+            ? stream
+            : stream.pipe(save('bundle:js'))
+                    .pipe(uglify())
+                    .pipe(rename({
+                        suffix: '.min'
+                    }))
+                    .pipe(save.restore('bundle:js'))
 }
 
 builder.clean = clean

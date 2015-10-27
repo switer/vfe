@@ -2,9 +2,15 @@ vfe
 =====
 vfe is a components builder with specified directory structure, base on webpack and gulp.
 
-## Usage
+- [usage](https://github.com/switer/vfe#usage)
+- [require rules](https://github.com/switer/vfe#require-rules)
+- [custom modules directory](https://github.com/switer/vfe#custom-modules-directory)
+- [command line](https://github.com/switer/vfe#command-line)
 
-Installing.
+## Usage
+See [example](https://github.com/switer/vfe-init-template).
+
+Installing:
 ```js
 npm install vfe --save
 ```
@@ -64,7 +70,7 @@ Project folders specification:
 	
 	Components entry js.
 
-## Module path rules
+## Require rules
 
 - **require(`"/$components_modules/name/$resource.js"`)** 
 
