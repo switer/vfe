@@ -69,16 +69,21 @@ function componentsBuild(options) {
             new ExtractTextPlugin(cssOutputName)
         ]
 
-    var loaders = [{
+    var vfeLoaders = options.vfeLoaders || {}
+    var loaders = [
+        _.extend({
             test: /.*?\.tpl$/,
             loader: 'html-loader'
-        }, {
+        }, vfeLoaders.tpl), 
+        _.extend({
             test: /\.css$/,
             loader: ExtractTextPlugin.extract("css-loader")
-        }, {
+        }, vfeLoaders.css), 
+        _.extend({
             test: /\.(png|jpg|gif|jpeg|webp)$/,
             loader: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
-        }]
+        }, vfeLoaders.image)
+    ]
     var preLoaders = []
 
     var loaderDirectories = [

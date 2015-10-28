@@ -30,7 +30,12 @@ gulp.task('default', ['clean'], function () {
 				loader: 'json-loader'
 			}],
 			loaderDirectories: ['webpack-loaders'],
-			modulesDirectories: ['', 'c', 'custom_modules']
+			modulesDirectories: ['', 'c', 'custom_modules'],
+			vfeLoaders: {
+				image: {
+					loader: 'file-loader?name=./images/[name]_[hash:6].[ext]'
+				}
+			}
 		})
 		.pipe(gulp.dest(dist))
 })
