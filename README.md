@@ -2,10 +2,11 @@ vfe
 =====
 vfe is a components builder with specified directory structure, base on webpack and gulp.
 
-- [usage](https://github.com/switer/vfe#usage)
-- [require rules](https://github.com/switer/vfe#require-rules)
-- [custom modules directory](https://github.com/switer/vfe#custom-modules-directory)
-- [command line](https://github.com/switer/vfe#command-line)
+- [Usage](https://github.com/switer/vfe#usage)
+- [Require Rules](https://github.com/switer/vfe#require-rules)
+- [Custom Modules Directory](https://github.com/switer/vfe#custom-modules-directory)
+- [Command Line](https://github.com/switer/vfe#command-line)
+- [Configure](https://github.com/switer/vfe#configure)
 
 ## Usage
 See [example](https://github.com/switer/vfe-init-template).
@@ -134,6 +135,24 @@ Releasing for production
 vfe release
 ```
 > Note: Release command support run with another task name, such as `vfe release sometask`, only if task name is `release-sometask`.
+
+
+## Configure
+
+####Vfe config
+
+```js
+{
+	vfeLoaders: {
+		tpl: {},   // html-loader, default match: *.tpl
+		css: {},   // css-loader,  default match: *.css
+		image: {}, // file-loader, default match: png|jpg|gif|jpeg|webp
+	}
+}
+```
+
+#### WebPack
+Using as **vfe(`options`)** , `options` will be passed through to webpack function.
 
 ## License
 
