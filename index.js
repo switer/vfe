@@ -222,7 +222,26 @@ var builder = function(options) {
         ))
         .pipe(save.restore('components:css,images'))
 }
+builder.bundle = function (src, options) {
+    var usingMinify = options.minify !== false
+    var usingHash = options.hash !== false
+    var stream = gulp.src(src)
+        .pipe(concat(options.name + '.js'))
+        .pipe(gulpif(usingHash, hash({
+            hashLength: HASH_LENGTH,
+            template: '<%= name %>_<%= hash %><%= ext %>'
+        })))
 
+    if (usingMinify) {
+        return stream
+            .pipe(save('bundle:js'))
+            .pipe(uglify())
+            .pipe(rename({ suffix: '.min' }))
+            .pipe(save.restore('bundle:js'))
+    }
+    return stream
+}
+builder.HASH_LENGTH = HASH_LENGTH
 builder.clean = clean
 builder.concat = concat
 builder.uglify = uglify
