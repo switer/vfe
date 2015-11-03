@@ -14,7 +14,13 @@ gulp.task('clean', function () {
 	return gulp.src(dist, {read: false}).pipe(vfe.clean())
 })
 gulp.task('default', ['clean'], function () {
-	return vfe({
+	return vfe.merge(
+		vfe.bundle(['lib/*'], {
+			name: 'libs',
+			minify: true,
+			hash: true
+		}),
+		vfe({
 			entry: {
 				a: './main',
 				b: './c/pages/index/index.js'
@@ -37,5 +43,6 @@ gulp.task('default', ['clean'], function () {
 				}
 			}
 		})
-		.pipe(gulp.dest(dist))
+	)
+	.pipe(gulp.dest(dist))
 })
