@@ -2,7 +2,7 @@
 
 var gulp = require('gulp')
 var vfe = require('../index')
-
+var path = require('path')
 var dist = './dist'
 
 gulp.task('watch', function () {
@@ -14,6 +14,12 @@ gulp.task('clean', function () {
 	return gulp.src(dist, {read: false}).pipe(vfe.clean())
 })
 gulp.task('default', ['clean'], function () {
+
+	function is(ext, action) {
+		return vfe.if(function (file) {
+			return ext.test(path.extname(file.path).replace(/^\./, ''))
+		}, action)
+	}
 	return vfe.merge(
 		vfe.bundle(['lib/*'], {
 			name: 'libs',
@@ -44,5 +50,8 @@ gulp.task('default', ['clean'], function () {
 			}
 		})
 	)
-	.pipe(gulp.dest(dist))
+	.pipe(is(/^css$/, gulp.dest(path.join(dist, 'cdn', 'css'))))
+	.pipe(is(/^js$/, gulp.dest(path.join(dist, 'cdn', 'js'))))
+	.pipe(is(/^(png|jpg|webp)$/i, gulp.dest(path.join(dist, 'cdn'))))
+	// .pipe(gulp.dest(dist))
 })

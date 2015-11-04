@@ -19,6 +19,7 @@ var webpackStream = require('webpack-stream')
 var ExtractTextPlugin = require("extract-text-webpack-plugin")
 var ComponentPlugin = require('./plugins/component')
 var _ = require('underscore')
+var shortid = require('shortid')
 var HASH_LENGTH = 6
 
 var root = process.cwd()
@@ -179,6 +180,9 @@ var builder = function(options) {
     var libs = options.libs
     var isConcatLibs = libs && libs.length && options.name
     var streams = []
+    var cssimgId = shortid.generate()
+    var cssminId = shortid.generate()
+    var jsId = shortid.generate()
 
     /**
      * concat component js bundle with lib js
@@ -193,13 +197,13 @@ var builder = function(options) {
     streams.push(
         componentsBuild(_.extend({}, options))
         .pipe(jsFilter)
-        .pipe(save('components:css,images'))
+        .pipe(save('components:css,images:' + cssimgId))
         .pipe(gulpif(options.minify !== false,
             multipipe(
                 gulpFilter(['*.css']), 
                 cssmin(), 
                 rename({ suffix: '.min' }), 
-                save('components:css.min')
+                save('components:css.min:' + cssminId)
             )
         ))
         .pipe(jsFilter.restore())
@@ -213,17 +217,19 @@ var builder = function(options) {
         })))
         .pipe(gulpif(options.minify !== false, 
             multipipe(
-                save('components:js'),
+                save('components:js:' + jsId),
                 uglify(),
                 rename({ suffix: '.min' }),
-                save.restore('components:css.min'),
-                save.restore('components:js')
+                save.restore('components:css.min:' + cssminId),
+                save.restore('components:js:' + jsId)
             )
         ))
-        .pipe(save.restore('components:css,images'))
+        .pipe(save.restore('components:css,images:' + cssimgId))
 }
 builder.bundle = function (src, options) {
     options = options || {}
+
+    var bid = shortid.generate()
     var usingMinify = options.minify !== false
     var usingHash = options.hash !== false
     var stream = gulp.src(src)
@@ -235,10 +241,10 @@ builder.bundle = function (src, options) {
 
     if (usingMinify) {
         return stream
-            .pipe(save('bundle:js'))
+            .pipe(save('bundle:js:' + bid))
             .pipe(uglify())
             .pipe(rename({ suffix: '.min' }))
-            .pipe(save.restore('bundle:js'))
+            .pipe(save.restore('bundle:js:' + bid))
     }
     return stream
 }
