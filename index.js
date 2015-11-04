@@ -4,7 +4,7 @@ var gulp = require('gulp')
 var path = require('path')
 var uglify = require('gulp-uglify')
 var concat = require('gulp-concat')
-var clean = require('gulp-clean')
+var rimraf = require('gulp-rimraf')
 var hash = require('gulp-hash')
 var gulpif = require('gulp-if')
 var merge2 = require('merge2')
@@ -189,6 +189,7 @@ var builder = function(options) {
                     .pipe(save.restore('bundle:js'))
 }
 builder.bundle = function (src, options) {
+    options = options || {}
     var usingMinify = options.minify !== false
     var usingHash = options.hash !== false
     var stream = gulp.src(src)
@@ -208,7 +209,7 @@ builder.bundle = function (src, options) {
     return stream
 }
 builder.HASH_LENGTH = HASH_LENGTH
-builder.clean = clean
+builder.clean = rimraf
 builder.concat = concat
 builder.uglify = uglify
 builder.rename = rename
