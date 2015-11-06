@@ -5,6 +5,8 @@ vfe is a components builder with specified directory structure, base on webpack 
 - [Usage](https://github.com/switer/vfe#usage)
 - [Require Rules](https://github.com/switer/vfe#require-rules)
 - [Custom Modules Directory](https://github.com/switer/vfe#custom-modules-directory)
+- [API](https://github.com/switer/vfe#api)
+- [Expose Modules](https://github.com/switer/vfe#expose-modules)
 - [Command Line](https://github.com/switer/vfe#command-line)
 - [Configure](https://github.com/switer/vfe#configure)
 
