@@ -44,8 +44,13 @@ gulp.task('default', ['clean'], function () {
 			loaderDirectories: ['webpack-loaders'],
 			modulesDirectories: ['', 'c', 'custom_modules'],
 			vfeLoaders: {
+				css: {
+					options: {
+						publicPath: '../'
+					}
+				},
 				image: {
-					loader: 'file-loader?name=./images/[name]_[hash:6].[ext]'
+					loader: 'file-loader?name=images/[name]_[hash:6].[ext]'
 				}
 			}
 		})

@@ -71,6 +71,7 @@ function componentsBuild(options) {
         ]
 
     var vfeLoaders = options.vfeLoaders || {}
+    var vfeLoadersCssOpts = (vfeLoaders.css ? vfeLoaders.css : {})
     var loaders = [
         _.extend({
             test: /.*?\.tpl$/,
@@ -78,8 +79,8 @@ function componentsBuild(options) {
         }, vfeLoaders.tpl), 
         _.extend({
             test: /\.css$/,
-            loader: ExtractTextPlugin.extract("css-loader")
-        }, vfeLoaders.css), 
+            loader: ExtractTextPlugin.extract("css-loader", _.extend({}, vfeLoadersCssOpts.options))
+        }, vfeLoadersCssOpts), 
         _.extend({
             test: /\.(png|jpg|gif|jpeg|webp)$/,
             loader: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
@@ -283,5 +284,7 @@ builder.util = {
         }
     }
 }
+builder.webpack = webpack
+builder.ExtractTextPlugin = ExtractTextPlugin
 
 module.exports = builder
