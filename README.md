@@ -87,9 +87,21 @@ Project folders specification:
 	
 	Short name of `"/$components_modules/dir/$name/$name.js"`.
 
+- **require(`"$modules_dir/$name"`)** 
+	
+	Short name of `"/$components_modules/$name/$name.js"`.
+
 - **require(`"./$name.tpl"`)**
 
 	Load html template file as a string module.
+
+- **require(`"!$name"`)**
+	
+	Request "$name" module directly without any tansform. Also can using with:
+
+		* require('!$dir/name')
+		* require(`"$modules_dir/$name"`)
+
 
 [See more usage](https://github.com/switer/vfe/blob/master/test/index.js)
 
@@ -112,9 +124,10 @@ vfe({
 
 - **vfe.bundle(src[, options])**
 	**options**
+	* `name` output name withou extension
 	* `hash` enable/disable using output, default true
 	* `minify` enable/disable compress css/js, default true
-	* `name` output name withou extension
+	* `rule`  enable/disable require rule transform, default true
 
 - **vfe.HASH_LENGTH**
 	Vfe default output name's hash-length

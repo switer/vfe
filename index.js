@@ -56,7 +56,7 @@ function componentsBuild(options) {
                 }
                 return f
             }),
-            // /modules_directory/dir/component
+            // /modules_directory/component
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
                 if (onRequest(f) === false) return
                 if (!/^\!/.test(f.request)) {
