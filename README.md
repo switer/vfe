@@ -151,7 +151,7 @@ vfe({
 
 Install cli
 ```bash
-npm install vfe -g
+npm install vfe-cli -g
 ```
 
 Init project using [vfe-template](https://github.com/switer/vfe-init-template)
@@ -180,8 +180,7 @@ vfe release
 
 ## Configure
 
-####Vfe config
-
+#### vfe specified config
 ```js
 {
 	vfeLoaders: {
