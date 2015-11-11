@@ -30,45 +30,68 @@ function componentsBuild(options) {
     var usingHash = options.hash !== false
     var cssOutputName = usingHash ? '[name]_[hash:' + HASH_LENGTH +  '].css' : '[name].css'
     var plugins = [
-            // *(dir/component)
+            // (dir/component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
                 if (onRequest(f) === false) return
-                var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
-                var cdir = matches[1]
-                var cname = matches[2]
-                f.request = cdir + '/' + cname + '/' + cname
+                if (!/^\!/.test(f.request)) {
+                    var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
+                    var cdir = matches[1]
+                    var cname = matches[2]
+                    f.request = cdir + '/' + cname + '/' + cname
+                } else {
+                    // no transform
+                    f.request = f.request.replace(/^\!/, '')
+                    
+                }
                 return f
             }),
-            // *(component)
+            // (component), !(component) will not transform
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
                 if (onRequest(f) === false) return
-                var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
-                f.request = cname + '/' + cname
+                if (!/^\!/.test(f.request)) {
+                    var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
+                    f.request = cname + '/' + cname
+                } else {
+                    f.request = f.request.replace(/^\!/, '')
+                }
                 return f
             }),
-            // /modules_directory/component:[^\.]
+            // /modules_directory/dir/component
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
                 if (onRequest(f) === false) return
-                var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
-                var cdir = matches[1]
-                var cname = matches[2]
+                if (!/^\!/.test(f.request)) {
+                    var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
+                    var cdir = matches[1]
+                    var cname = matches[2]
 
-                f.context = path.join(root, './' + cdir)
-                f.request = cname + '/' + cname
+                    f.context = path.join(root, './' + cdir)
+                    f.request = cname + '/' + cname
+                } else {
+                    f.request = f.request.replace(/^\!/, '')
+                }
                 return f
             }),
             // /*: absolute path
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+/, function(f) {
                 if (onRequest(f) === false) return
-                f.request = f.request.replace(/^[\/\\]([^\/\\]+)/, function (m, fname) {
-                    f.context = root
-                    return './' + fname
-                })
+                if (!/^\!/.test(f.request)) {
+                    f.request = f.request.replace(/^[\/\\]([^\/\\]+)/, function (m, fname) {
+                        f.context = root
+                        return './' + fname
+                    })
+                } else {
+                    f.request = f.request.replace(/^\!/, '')
+                }
                 return f
             }),
             // extract css bundle
             new ExtractTextPlugin(cssOutputName)
         ]
+
+    if (options.rule == false) {
+        // remove rule transform plugins
+        plugins = plugins.slice(plugins.length - 1, plugins.length)
+    }
 
     var vfeLoaders = options.vfeLoaders || {}
     var vfeLoadersCssOpts = (vfeLoaders.css ? vfeLoaders.css : {})

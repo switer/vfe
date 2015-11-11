@@ -28,8 +28,7 @@ gulp.task('default', ['clean'], function () {
 		}),
 		vfe({
 			entry: {
-				a: './main',
-				b: './c/pages/index/index.js'
+				a: 'main.js'
 			},
 			output: {
 				filename: '[name].js',				
@@ -42,7 +41,7 @@ gulp.task('default', ['clean'], function () {
 				loader: 'json-loader'
 			}],
 			loaderDirectories: ['webpack-loaders'],
-			modulesDirectories: ['', 'c', 'custom_modules'],
+			modulesDirectories: ['', 'c', 'custom_modules', 'node_modules'],
 			vfeLoaders: {
 				css: {
 					options: {
