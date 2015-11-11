@@ -123,6 +123,7 @@ vfe({
 ## API
 
 - **vfe.bundle(src[, options])**
+
 	**options**
 	* `name` output name withou extension
 	* `hash` enable/disable using output, default true
@@ -130,21 +131,26 @@ vfe({
 	* `rule`  enable/disable require rule transform, default true
 
 - **vfe.HASH_LENGTH**
+
 	Vfe default output name's hash-length
+
 - **vfe.util**
-	* once() run in once the the same time, run next after done, no queue
+
+	* `once( handler(next) )` run in once the the same time, run next after done, no queue
 
 ## Expose modules
 
-- [if](https://github.com/robrich/gulp-if) `gulp-if`
-- [hash](https://github.com/Dragory/gulp-hash) `gulp-hash`
-- [filter](https://github.com/sindresorhus/gulp-filter) `gulp-filter`
-- [merge](https://github.com/teambition/merge2) `merge2`
-- [rename](https://github.com/hparra/gulp-rename) `gulp-rename`
-- [clean](https://github.com/robrich/gulp-rimraf) `gulp-rimraf`
-- [concat](https://github.com/contra/gulp-concat) `gulp-concat`
-- [uglify](https://github.com/terinjokes/gulp-uglify) `gulp-uglify`
-- [multipipe](https://github.com/juliangruber/multipipe) `multipipe`
+| Module                                                | name        |
+| ----------------------------------------------------- |:-----------:|
+| [if](https://github.com/robrich/gulp-if) 				|`gulp-if`	  |
+| [hash](https://github.com/Dragory/gulp-hash) 			|`gulp-hash`  |
+| [filter](https://github.com/sindresorhus/gulp-filter) |`gulp-filter`|
+| [merge](https://github.com/teambition/merge2) 		|`merge2`	  |
+| [rename](https://github.com/hparra/gulp-rename) 		|`gulp-rename`|
+| [clean](https://github.com/robrich/gulp-rimraf) 		|`gulp-rimraf`|
+| [concat](https://github.com/contra/gulp-concat) 		|`gulp-concat`|
+| [uglify](https://github.com/terinjokes/gulp-uglify) 	|`gulp-uglify`|
+| [multipipe](https://github.com/juliangruber/multipipe)|`multipipe`  |
 
 
 ## Command line
