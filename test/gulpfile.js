@@ -42,6 +42,7 @@ gulp.task('default', ['clean'], function () {
 			}],
 			loaderDirectories: ['webpack-loaders'],
 			modulesDirectories: ['', 'c', 'custom_modules', 'node_modules'],
+			node_modules: ['real'],
 			vfeLoaders: {
 				css: {
 					options: {

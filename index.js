@@ -26,7 +26,14 @@ var root = process.cwd()
 function noop () {}
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
-    var onRequest = options.onRequest || noop
+    var node_modules = options.node_modules || []
+    var onRequest = options.onRequest || function (f) {
+        var context = f.context
+        var request = f.request
+        if (/[\\\/]node_modules[\\\/]/.test(context)) return false
+        if (~node_modules.indexOf(request)) return false
+        else return true
+    }
     var usingHash = options.hash !== false
     var cssOutputName = usingHash ? '[name]_[hash:' + HASH_LENGTH +  '].css' : '[name].css'
     var plugins = [
