@@ -34,6 +34,7 @@ function componentsBuild(options) {
         if (~node_modules.indexOf(request)) return false
         else return true
     }
+    var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
     var usingHash = options.hash !== false
     var cssOutputName = usingHash ? '[name]_[hash:' + HASH_LENGTH +  '].css' : '[name].css'
     var plugins = [
@@ -70,9 +71,7 @@ function componentsBuild(options) {
                     var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
                     var cdir = matches[1]
                     var cname = matches[2]
-
-                    f.context = path.join(root, './' + cdir)
-                    f.request = cname + '/' + cname
+                    f.request = path.join('!', root, cdir, cname, cname)
                 } else {
                     f.request = f.request.replace(/^\!/, '')
                 }
@@ -87,8 +86,7 @@ function componentsBuild(options) {
                     var category = matches[2]
                     var cname = matches[3]
 
-                    f.context = path.join(root, './' + cdir, category)
-                    f.request = cname + '/' + cname
+                    f.request = path.join('!', root, cdir, category, cname, cname)
                 } else {
                     f.request = f.request.replace(/^\!/, '')
                 }
@@ -139,7 +137,6 @@ function componentsBuild(options) {
         path.join(__dirname, './node_modules'), 
         path.join(__dirname, '../') // parent node_modules
     ]
-    var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
     var moduleOpt = options.module
     var resolveOpt = options.resolve
     var resolveLoaderOpt = options.resolveLoader
