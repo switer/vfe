@@ -14,5 +14,7 @@ require('./global-module.js') 			// relative path
 require('./global-module')				// relative path without extension
 require('/global-module.js')			// absolute path
 require('/global-module')				// absolute path without extension
+require('/custom_modules/category/header')
+require('custom_cat/header/header.js')
 
 module.exports = require('/c/home')

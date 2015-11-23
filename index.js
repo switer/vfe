@@ -78,6 +78,22 @@ function componentsBuild(options) {
                 }
                 return f
             }),
+            // /modules_directory/category/cname
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
+                if (onRequest(f) === false) return
+                if (!/^\!/.test(f.request)) {
+                    var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
+                    var cdir = matches[1]
+                    var category = matches[2]
+                    var cname = matches[3]
+
+                    f.context = path.join(root, './' + cdir, category)
+                    f.request = cname + '/' + cname
+                } else {
+                    f.request = f.request.replace(/^\!/, '')
+                }
+                return f
+            }),
             // /*: absolute path
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+/, function(f) {
                 if (onRequest(f) === false) return
