@@ -100,20 +100,24 @@ function componentsBuild(options) {
                 return f
             }),
             // /*: absolute path
-            new webpack.NormalModuleReplacementPlugin(/^[\!\~]?[\/\\][^\/\\]+/, function(f) {
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+/, function(f) {
                 if (onRequest(f) === false) return
-                if (/^\~/.test(f.request)) {
+                f.request = f.request.replace(/^[\/\\]([^\/\\]+)/, function (m, fname) {
                     f.context = root
-                    f.request = path.join('./', f.request.replace(/^\~/, ''))
+                    return './' + fname
+                })
+                return f
+            }),
+            // /*: absolute path
+            new webpack.NormalModuleReplacementPlugin(/^[\!\~]/, function(f) {
+                if (onRequest(f) === false) return
+                var request = f.request
+                if (/^\~/.test(request)) {
+                    f.context = root
+                    f.request = path.join('./', request.replace(/^\~\/?/, ''))
                     return
-                }
-                if (!/^\!/.test(f.request)) {
-                    f.request = f.request.replace(/^[\/\\]([^\/\\]+)/, function (m, fname) {
-                        f.context = root
-                        return './' + fname
-                    })
                 } else {
-                    f.request = f.request.replace(/^\!/, '')
+                    f.request = request.replace(/^\!/, '')
                 }
                 return f
             }),
