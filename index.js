@@ -37,10 +37,14 @@ function componentsBuild(options) {
     var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
     var usingHash = options.hash !== false
     var cssOutputName = usingHash ? '[name]_[hash:' + HASH_LENGTH +  '].css' : '[name].css'
+    function ruleFilter(f) {
+        if (/^\~/.test(f.request)) return true
+    }
     var plugins = [
             // (dir/component)
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
                 if (onRequest(f) === false) return
+                if (ruleFilter(f)) return
                 if (!/^\!/.test(f.request)) {
                     var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
                     var cdir = matches[1]
@@ -56,6 +60,7 @@ function componentsBuild(options) {
             // (component), !(component) will not transform
             new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
                 if (onRequest(f) === false) return
+                if (ruleFilter(f)) return
                 if (!/^\!/.test(f.request)) {
                     var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
                     f.request = cname + '/' + cname
@@ -67,6 +72,7 @@ function componentsBuild(options) {
             // /modules_directory/component
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
                 if (onRequest(f) === false) return
+                if (ruleFilter(f)) return
                 if (!/^\!/.test(f.request)) {
                     var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
                     var cdir = matches[1]
@@ -80,6 +86,7 @@ function componentsBuild(options) {
             // /modules_directory/category/cname
             new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
                 if (onRequest(f) === false) return
+                if (ruleFilter(f)) return
                 if (!/^\!/.test(f.request)) {
                     var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
                     var cdir = matches[1]
@@ -93,8 +100,13 @@ function componentsBuild(options) {
                 return f
             }),
             // /*: absolute path
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+/, function(f) {
+            new webpack.NormalModuleReplacementPlugin(/^[\!\~]?[\/\\][^\/\\]+/, function(f) {
                 if (onRequest(f) === false) return
+                if (/^\~/.test(f.request)) {
+                    f.context = root
+                    f.request = path.join('./', f.request.replace(/^\~/, ''))
+                    return
+                }
                 if (!/^\!/.test(f.request)) {
                     f.request = f.request.replace(/^[\/\\]([^\/\\]+)/, function (m, fname) {
                         f.context = root
