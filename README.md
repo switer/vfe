@@ -97,10 +97,15 @@ Project folders specification:
 
 - **require(`"!$name"`)**
 	
-	Request "$name" module directly without any tansform. Also can using with:
+	Request "$name" module directly without any tansform. Such as:
 
-		* require('!$dir/name')
-		* require(`"$modules_dir/$name"`)
+		* require('!$dir/name') // equal require('$dir/name') directly
+
+- **require(`"~/$path"`)**
+	
+	Load module by "$path" base in **process.cwd()** and without any tansform. Such:
+
+		* require('~/$dir/name') // equal to require('$cwd/$dir/name')
 
 
 [See more usage](https://github.com/switer/vfe/blob/master/test/index.js)
