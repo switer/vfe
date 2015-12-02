@@ -1,5 +1,7 @@
 vfe
 =====
+[![npm version](https://badge.fury.io/js/vfe.svg)](https://badge.fury.io/js/vfe)
+
 vfe is a components builder with specified directory structure, base on webpack and gulp.
 
 - [Usage](https://github.com/switer/vfe#usage)

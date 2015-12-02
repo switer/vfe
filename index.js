@@ -42,11 +42,11 @@ function componentsBuild(options) {
     }
     var plugins = [
             // (dir/component)
-            new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+[\/\\][^\/\\\.]+$/, function(f) {
+            new webpack.NormalModuleReplacementPlugin(/^[\w\_\$\-]+[\/\\][\w\_\$\-]+$/, function(f) {
                 if (onRequest(f) === false) return
                 if (ruleFilter(f)) return
                 if (!/^\!/.test(f.request)) {
-                    var matches = f.request.match(/^([^\/\\\.]+)[\/\\]([^\/\\\.]+)$/)
+                    var matches = f.request.match(/^([\w\_\$\-]+)[\/\\]([\w\_\$\-]+)$/)
                     var cdir = matches[1]
                     var cname = matches[2]
                     f.request = cdir + '/' + cname + '/' + cname
@@ -58,11 +58,11 @@ function componentsBuild(options) {
                 return f
             }),
             // (component), !(component) will not transform
-            new webpack.NormalModuleReplacementPlugin(/^[^\/\\\.]+$/, function(f) {
+            new webpack.NormalModuleReplacementPlugin(/^[\w\_\$\-]+$/, function(f) {
                 if (onRequest(f) === false) return
                 if (ruleFilter(f)) return
                 if (!/^\!/.test(f.request)) {
-                    var cname = f.request.match(/^([^\/\\\.]+)$/)[1]
+                    var cname = f.request.match(/^([\w\_\$\-]+)$/)[1]
                     f.request = cname + '/' + cname
                 } else {
                     f.request = f.request.replace(/^\!/, '')
@@ -70,11 +70,11 @@ function componentsBuild(options) {
                 return f
             }),
             // /modules_directory/component
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\][\w\_\$\-]+[\/\\][\w\_\$\-]+$/, function(f) {
                 if (onRequest(f) === false) return
                 if (ruleFilter(f)) return
                 if (!/^\!/.test(f.request)) {
-                    var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
+                    var matches = f.request.match(/[\/\\]([\w\_\$\-]+)[\/\\]([\w\_\$\-]+)$/)
                     var cdir = matches[1]
                     var cname = matches[2]
                     f.request = path.join('!', root, cdir, cname, cname)
@@ -84,11 +84,11 @@ function componentsBuild(options) {
                 return f
             }),
             // /modules_directory/category/cname
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+[\/\\][^\/\\]+[\/\\][^\/\\\.]+$/, function(f) {
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\][\w\_\$\-]+[\/\\][\w\_\$\-]+[\/\\][\w\_\$\-]+$/, function(f) {
                 if (onRequest(f) === false) return
                 if (ruleFilter(f)) return
                 if (!/^\!/.test(f.request)) {
-                    var matches = f.request.match(/[\/\\]([^\/\\]+)[\/\\]([^\/\\]+)[\/\\]([^\/\\\.]+)$/)
+                    var matches = f.request.match(/[\/\\]([\w\_\$\-]+)[\/\\]([\w\_\$\-]+)[\/\\]([\w\_\$\-]+)$/)
                     var cdir = matches[1]
                     var category = matches[2]
                     var cname = matches[3]
@@ -100,9 +100,9 @@ function componentsBuild(options) {
                 return f
             }),
             // /*: absolute path
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\][^\/\\]+/, function(f) {
+            new webpack.NormalModuleReplacementPlugin(/^[\/\\][\w\_\$\-]+/, function(f) {
                 if (onRequest(f) === false) return
-                f.request = f.request.replace(/^[\/\\]([^\/\\]+)/, function (m, fname) {
+                f.request = f.request.replace(/^[\/\\]([\w\_\$\-]+)/, function (m, fname) {
                     f.context = root
                     return './' + fname
                 })
@@ -195,7 +195,7 @@ function componentsBuild(options) {
         loaderDirectories = loaderDirectories.concat(resolveLoaderOpt.modulesDirectories)
     }
 
-    resolveModules = resolveModules && resolveModules.length ?  resolveModules : ['c']
+    resolveModules = resolveModules && resolveModules.length ?  resolveModules : ['c', 'node_modules']
     preLoaders = [{
         test: new RegExp('/($dir)/$w+/$w+/$w+\.js$'
             .replace(/\//g, '[\/\\\\]')
