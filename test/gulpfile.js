@@ -30,10 +30,11 @@ gulp.task('default', ['clean'], function () {
 		}, action)
 	}
 	return vfe.merge(
-		vfe.bundle(['lib/*'], {
+		vfe.bundle(['lib/a.js'], {
 			name: 'libs',
 			minify: true,
-			hash: true
+			hash: true,
+			concats: ['lib/b.js']
 		}),
 		vfe({
 			entry: {

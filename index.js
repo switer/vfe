@@ -292,20 +292,39 @@ builder.bundle = function (src, options) {
     var bid = shortid.generate()
     var usingMinify = options.minify !== false
     var usingHash = options.hash !== false
+    var bundleFileName = options.name + '.js'
+    var concats = options.concats
+    var hashOpt = {
+        hashLength: HASH_LENGTH,
+        template: '<%= name %>_<%= hash %><%= ext %>'
+    }
+    var hasConcats = _.isArray(concats) && !!concats.length
     var stream = gulp.src(src)
-        .pipe(concat(options.name + '.js'))
-        .pipe(gulpif(usingHash, hash({
-            hashLength: HASH_LENGTH,
-            template: '<%= name %>_<%= hash %><%= ext %>'
-        })))
 
     if (usingMinify) {
-        return stream
-            .pipe(save('bundle:js:' + bid))
+        stream = stream
+            .pipe(concat(bundleFileName))
+            .pipe(gulpif(!hasConcats, save('bundle:js:' + bid)))
             .pipe(uglify())
+
+        if (hasConcats) {
+            stream = merge2(stream, gulp.src(concats))
+                .pipe(concat(bundleFileName))
+        }
+        stream = stream
+            .pipe(gulpif(usingHash, hash(hashOpt)))
             .pipe(rename({ suffix: '.min' }))
-            .pipe(save.restore('bundle:js:' + bid))
+            .pipe(gulpif(!hasConcats, save.restore('bundle:js:' + bid)))
+    } else {
+        stream = stream
+            .pipe(gulpif(usingHash, hash(hashOpt)))
+
+        if (hasConcats) {
+            stream = merge2(stream, gulp.src(concats))
+        }
+        stream = stream.pipe(concat(bundleFileName))
     }
+
     return stream
 }
 builder.HASH_LENGTH = HASH_LENGTH
