@@ -149,11 +149,12 @@ vfe({
 ## Expose modules
 
 Using gulp module of vfe without require, such as:
+
 ```js
 vfe(options)
 	.pipe(vfe.if())
 	.pipe(vfe.rename)
-``
+```
 
 | Module                                                | name        |
 | ----------------------------------------------------- |:-----------:|
