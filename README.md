@@ -16,8 +16,9 @@ vfe is a components builder with specified directory structure, base on webpack 
 See [example](https://github.com/switer/vfe-init-template).
 
 Installing:
+
 ```js
-npm install vfe-cli --save
+npm install vfe --save
 ```
 
 Using with [gulp](http://gulpjs.com/) build tool, create a `gulpfile.js` file
@@ -146,6 +147,13 @@ vfe({
 	* `once( handler(next) )` run in once the the same time, run next after done, no queue
 
 ## Expose modules
+
+Using gulp module of vfe without require, such as:
+```js
+vfe(options)
+	.pipe(vfe.if())
+	.pipe(vfe.rename)
+``
 
 | Module                                                | name        |
 | ----------------------------------------------------- |:-----------:|
