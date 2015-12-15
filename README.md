@@ -17,17 +17,17 @@ See [example](https://github.com/switer/vfe-init-template).
 
 Installing:
 ```js
-npm install vfe --save
+npm install vfe-cli --save
 ```
 
 Using with [gulp](http://gulpjs.com/) build tool, create a `gulpfile.js` file
 ```js
 var gulp = require('gulp')
-var builder = require('vfe')
+var vfe = require('vfe')
 
 gulp.task('default', function () {
 	
-	return builder({
+	return vfe({
 			entry: './index.js',
 			libs: './lib/*.js'
 		})
