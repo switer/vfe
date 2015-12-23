@@ -131,6 +131,7 @@ vfe({
 ## API
 
 - **vfe(options)**
+
 	`options` also is webpack's options. `vfe` only options:
 
 	**options**
@@ -195,6 +196,8 @@ vfe(options)
 | [concat](https://github.com/contra/gulp-concat) 		|`gulp-concat`|
 | [uglify](https://github.com/terinjokes/gulp-uglify) 	|`gulp-uglify`|
 | [multipipe](https://github.com/juliangruber/multipipe)|`multipipe`  |
+| [webpack](https://github.com/webpack/webpack)|`webpack`  |
+| [ExtractTextPlugin](https://github.com/webpack/extract-text-webpack-plugin)|`extract-text-webpack-plugin`  |
 
 
 ## Command line
