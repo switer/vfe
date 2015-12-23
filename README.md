@@ -135,7 +135,7 @@ vfe({
 	`options` also is webpack's options. `vfe` only options:
 
 	**options**
-	* `name` output name withou extension
+	* `name` output filename without extension.
 	* `hash` enable/disable using output, default true
 	* `minify` enable/disable compress css/js, default true
 	* `rule`  enable/disable require rule transform, default true
@@ -162,7 +162,7 @@ vfe({
 - **vfe.bundle(src[, options])**
 
 	**options**
-	* `name` output name withou extension
+	* `name` output filename without extension
 	* `hash` enable/disable using output, default true
 	* `minify` enable/disable compress css/js, default true
 	* `concats` those files will be concat directly without minify
