@@ -130,13 +130,41 @@ vfe({
 
 ## API
 
-- **vfe.bundle(src[, options])**
+- **vfe(options)**
+	`options` also is webpack's options. `vfe` only options:
 
 	**options**
 	* `name` output name withou extension
 	* `hash` enable/disable using output, default true
 	* `minify` enable/disable compress css/js, default true
 	* `rule`  enable/disable require rule transform, default true
+	* `onRequest` <Function> Call before rule transforming, return `false` will skip transform
+	* `vfeLoaders` configuration for build in loaders, include: image, css, tpl. For example:
+
+	```js
+		vfe({
+			// ...
+	    	vfeLoaders: {
+	    		css: {
+					options: {
+						publicPath: '../'
+					}
+				},
+				image: {
+					loader: 'file-loader?name=images/[name]_[hash:6].[ext]'
+				}
+	    	}
+	    	// ...
+		})
+	```
+
+- **vfe.bundle(src[, options])**
+
+	**options**
+	* `name` output name withou extension
+	* `hash` enable/disable using output, default true
+	* `minify` enable/disable compress css/js, default true
+	* `concats` those files will be concat directly without minify
 
 - **vfe.HASH_LENGTH**
 
