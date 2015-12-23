@@ -316,13 +316,11 @@ builder.bundle = function (src, options) {
             .pipe(rename({ suffix: '.min' }))
             .pipe(gulpif(!hasConcats, save.restore('bundle:js:' + bid)))
     } else {
-        stream = stream
-            .pipe(gulpif(usingHash, hash(hashOpt)))
-
         if (hasConcats) {
             stream = merge2(stream, gulp.src(concats))
         }
         stream = stream.pipe(concat(bundleFileName))
+            .pipe(gulpif(usingHash, hash(hashOpt)))
     }
 
     return stream

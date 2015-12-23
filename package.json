@@ -1,6 +1,6 @@
 {
   "name": "vfe",
-  "version": "1.3.16",
+  "version": "1.3.17",
   "description": "vfe build cli, base on webpack & gulp.",
   "main": "index.js",
   "bin": {
@@ -15,9 +15,8 @@
     "url": "git+https://github.com/switer/vfe.git"
   },
   "keywords": [
-    "VFE",
-    "build",
-    "tool"
+    "vfe",
+    "components"
   ],
   "author": "switer",
   "license": "MIT",
