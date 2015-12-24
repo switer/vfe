@@ -50,9 +50,6 @@ gulp.task('default', ['clean'], function () {
 			loaders: [{
 				test: /.*\.json$/,
 				loader: 'json-loader',
-			}, {
-				test: /.*\.less$/,
-				loader: vfe.ExtractTextPlugin.extract("style-loader", "css-loader!less-loader")
 			}],
 			loaderDirectories: ['webpack-loaders', 'node_modules'],
 			modulesDirectories: ['', 'c', 'custom_modules', 'node_modules'],
@@ -65,6 +62,11 @@ gulp.task('default', ['clean'], function () {
 				},
 				image: {
 					loader: 'file-loader?name=images/[name]_[hash:6].[ext]'
+				},
+				less: {
+					loader: vfe.ExtractTextPlugin.extract("style-loader", "css-loader!less-loader", {
+						publicPath: '../'
+					})
 				}
 			},
 			resolve: {

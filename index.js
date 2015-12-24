@@ -131,21 +131,42 @@ function componentsBuild(options) {
     }
 
     var vfeLoaders = options.vfeLoaders || {}
-    var vfeLoadersCssOpts = (vfeLoaders.css ? vfeLoaders.css : {})
-    var loaders = [
-        _.extend({
+    var enableLessLoader = !!vfeLoaders.less // default disable
+    var enableCssLoader = vfeLoaders.css !== false // default enable
+    var enableTplLoader = vfeLoaders.tpl !== false // default enable
+    var enableImgLoader = vfeLoaders.image !== false // default enable
+    function patchOpts (opts) {
+        return _.isObject(opts) ? opts : {}
+    }
+    var vfeLoadersCssOpts = patchOpts(vfeLoaders.css)
+    var vfeLoadersLessOpts = patchOpts(vfeLoaders.less)
+
+    var loaders = []
+    if (enableTplLoader) {
+        loaders.push(_.extend({
             test: /.*?\.tpl$/,
             loader: 'html-loader'
-        }, vfeLoaders.tpl), 
-        _.extend({
+        }, patchOpts(vfeLoaders.tpl)))
+    }
+    if (enableCssLoader) {
+        loaders.push(_.extend({
             test: /\.css$/,
-            loader: ExtractTextPlugin.extract("css-loader", _.extend({}, vfeLoadersCssOpts.options))
-        }, vfeLoadersCssOpts), 
-        _.extend({
+            loader: ExtractTextPlugin.extract("style-loader", "css-loader", _.extend({}, vfeLoadersCssOpts.options))
+        }, vfeLoadersCssOpts))
+    }
+    if (enableLessLoader) {
+        loaders.push(_.extend({
+            test: /\.less$/,
+            loader: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader", _.extend({}, vfeLoadersLessOpts.options))
+        }, vfeLoadersLessOpts))
+    }
+    if (enableImgLoader) {
+        loaders.push(_.extend({
             test: /\.(png|jpg|gif|jpeg|webp)$/,
             loader: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
-        }, vfeLoaders.image)
-    ]
+        }, patchOpts(vfeLoaders.image)))
+    }
+
     var preLoaders = []
 
     var loaderDirectories = [
@@ -349,17 +370,19 @@ builder.util = {
         var pending
         var hasNext
         function next() {
-            if (pending == false) return
-            pending = false
-            if (hasNext) {
-                hasNext = false
-                fn(next)
-            } 
+            setTimeout(function () {
+                if (pending === false) return
+                pending = false
+
+                if (hasNext) {
+                    hasNext = false
+                    fn(next)
+                } 
+            }, 50) // call after gulp ending handler done
         }
         return function () {
-            if (pending) {
-                return hasNext = true
-            }
+            if (pending) return hasNext = true
+
             pending = true
             fn(next)
         }

@@ -140,13 +140,27 @@ vfe({
 	* `minify` enable/disable compress css/js, default true
 	* `rule`  enable/disable require rule transform, default true
 	* `onRequest` <Function> Call before rule transforming, return `false` will skip transform
-	* `vfeLoaders` configuration for build in loaders, include: image, css, tpl. For example:
+	* `vfeLoaders` configuration for build in loaders, include: 
+
+		- **tpl** default enable, set false to disable
+		- **css** default enable, set false to disable
+		- **less** default `disable`, pass true/object to enable
+		- **image** default enable, set false to disable
+
+	For example:
 
 	```js
 		vfe({
 			// ...
 	    	vfeLoaders: {
+	    		tpl: false, // disable html-loader for *.tpl
 	    		css: {
+					options: {
+						publicPath: '../'
+					}
+				},
+				less: {
+					test: /\.(ls|less)$/,
 					options: {
 						publicPath: '../'
 					}
