@@ -149,6 +149,7 @@ function componentsBuild(options) {
     var preLoaders = []
 
     var loaderDirectories = [
+        'node_modules',
         path.join(__dirname, './loaders'), 
         path.join(__dirname, './node_modules'), 
         path.join(__dirname, '../') // parent node_modules
@@ -213,22 +214,23 @@ function componentsBuild(options) {
     }].concat(preLoaders)
 
     return webpackStream(_.extend({}, options, {
-            entry: entry,
-            module: _.extend({}, moduleOpt, {
-                preLoaders: preLoaders,
-                loaders: loaders
-            }),
-            resolveLoader: _.extend({}, options.resolveLoader, {
-                modulesDirectories: loaderDirectories
-            }),
-            plugins: plugins,
-            resolve: _.extend({}, resolveOpt, {
-                modulesDirectories: resolveModules,
-                extensions: extensions
-            }),
-        }))
+        entry: entry,
+        module: _.extend({}, moduleOpt, {
+            preLoaders: preLoaders,
+            loaders: loaders
+        }),
+        resolveLoader: _.extend({}, options.resolveLoader, {
+            modulesDirectories: loaderDirectories
+        }),
+        plugins: plugins,
+        resolve: _.extend({}, resolveOpt, {
+            modulesDirectories: resolveModules,
+            extensions: extensions
+        }),
+    })).on('error', function () {
+        this.emit('end')
+    })
 }
-
 
 var builder = function(options) {
 
@@ -285,6 +287,9 @@ var builder = function(options) {
             )
         ))
         .pipe(save.restore('components:css,images:' + cssimgId))
+        .on('error', function () {
+            this.emit('end')
+        })
 }
 builder.bundle = function (src, options) {
     options = options || {}

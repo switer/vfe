@@ -9,14 +9,15 @@ var dist = './dist'
 
 gulp.task('watch', function () {
 	return gulp.watch(['c/**/*', 'lib/**/*'], function () {
-		gulp.start('default')
-	})
+				gulp.start('default')
+			})
+
 })
 gulp.task('clean', function () {
 	return gulp.src(dist, {read: false}).pipe(vfe.clean())
 })
 gulp.exDest = function (dest) {
-	return gulp.dest.apply(gulp, arguments)
+	return gulp.dest.call(gulp, dest)
 			.pipe(map(function (file, callback) {
 	    		console.log('['+ 'Create'.gray + ']', path.join(dest, file.relative).green.gray)
 	            callback(null, file)
@@ -48,9 +49,12 @@ gulp.task('default', ['clean'], function () {
 			minify: true,
 			loaders: [{
 				test: /.*\.json$/,
-				loader: 'json-loader'
+				loader: 'json-loader',
+			}, {
+				test: /.*\.less$/,
+				loader: vfe.ExtractTextPlugin.extract("style-loader", "css-loader!less-loader")
 			}],
-			loaderDirectories: ['webpack-loaders'],
+			loaderDirectories: ['webpack-loaders', 'node_modules'],
 			modulesDirectories: ['', 'c', 'custom_modules', 'node_modules'],
 			node_modules: ['real'],
 			vfeLoaders: {
@@ -69,9 +73,15 @@ gulp.task('default', ['clean'], function () {
 				}
 			}
 		})
+		.on('error',  function () {})
 	)
-	.pipe(is(/^css$/, gulp.exDest(path.join(dist, 'cdn', 'css'))))
+	.pipe(is(/^css$/, gulp.dest(path.join(dist, 'cdn', 'css'))))
 	.pipe(is(/^js$/, gulp.dest(path.join(dist, 'cdn', 'js'))))
 	.pipe(is(/^(png|jpg|webp)$/i, gulp.dest(path.join(dist, 'cdn'))))
-	// .pipe(gulp.dest(dist))
+	.on('error', function (err) {
+	})
+	.on('close', function () {
+	})
+	.on('end', function () {
+	})
 })
