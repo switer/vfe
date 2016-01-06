@@ -223,9 +223,15 @@ npm install vfe-cli -g
 
 Init project using [vfe-template](https://github.com/switer/vfe-init-template)
 ```bash
-vfe init
+vfe init [template]
 ```
 > **Note**: Using proxy option, `vfe init -p $proxy`. Such as `vfe init -p tx`. See [$tx](https://github.com/switer/vfe/blob/master/bin/vfe#L17) 
+
+vfe init support 3 types template:
+
+- **default** An simple boilerplate that using vfe as component builder only.
+- **client**  An boilerplate that fitting in client-side render project. It use [Zect](http://github.com/switer/zect) as components framework.
+- **node** 	  An boilerplate that fitting in server-side render project. It use [Real](http://github.com/switer/real) and [comps](http://github.com/switer/comps).
 
 Run default build task
 ```bash
