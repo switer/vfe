@@ -1,7 +1,6 @@
 'use strict';
 
 var gulp = require('gulp')
-var path = require('path')
 var uglify = require('gulp-uglify')
 var concat = require('gulp-concat')
 var rimraf = require('gulp-rimraf')
@@ -275,6 +274,9 @@ var builder = function(options) {
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
         })))
+        .pipe(gulpif(typeof options.version != 'undefined', rename({
+            suffix: '_' + options.version
+        })))
         .pipe(gulpif(options.minify !== false, 
             multipipe(
                 save('components:js:' + jsId),
@@ -292,6 +294,7 @@ builder.bundle = function (src, options) {
     var bid = shortid.generate()
     var usingMinify = options.minify !== false
     var usingHash = options.hash !== false
+    var version = 'version' in options ? options.version : false
     var bundleFileName = options.name + '.js'
     var concats = options.concats
     var hashOpt = {
@@ -313,11 +316,13 @@ builder.bundle = function (src, options) {
         }
         stream = stream
             .pipe(gulpif(usingHash, hash(hashOpt)))
+            .pipe(gulpif(version !== false, rename({suffix: '_' + version})))
             .pipe(rename({ suffix: '.min' }))
             .pipe(gulpif(!hasConcats, save.restore('bundle:js:' + bid)))
     } else {
         stream = stream
             .pipe(gulpif(usingHash, hash(hashOpt)))
+            .pipe(gulpif(version !== false, rename({suffix: '_' + version})))
 
         if (hasConcats) {
             stream = merge2(stream, gulp.src(concats))
