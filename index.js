@@ -52,7 +52,7 @@ function componentsBuild(options) {
                 } else {
                     // no transform
                     f.request = f.request.replace(/^\!/, '')
-                    
+
                 }
                 return f
             }),
@@ -130,26 +130,48 @@ function componentsBuild(options) {
     }
 
     var vfeLoaders = options.vfeLoaders || {}
-    var vfeLoadersCssOpts = (vfeLoaders.css ? vfeLoaders.css : {})
-    var loaders = [
-        _.extend({
+    var enableLessLoader = !!vfeLoaders.less // default disable
+    var enableCssLoader = vfeLoaders.css !== false // default enable
+    var enableTplLoader = vfeLoaders.tpl !== false // default enable
+    var enableImgLoader = vfeLoaders.image !== false // default enable
+    function patchOpts (opts) {
+        return _.isObject(opts) ? opts : {}
+    }
+    var vfeLoadersCssOpts = patchOpts(vfeLoaders.css)
+    var vfeLoadersLessOpts = patchOpts(vfeLoaders.less)
+
+    var loaders = []
+    if (enableTplLoader) {
+        loaders.push(_.extend({
             test: /.*?\.tpl$/,
             loader: 'html-loader'
-        }, vfeLoaders.tpl), 
-        _.extend({
+        }, patchOpts(vfeLoaders.tpl)))
+    }
+    if (enableCssLoader) {
+        loaders.push(_.extend({
             test: /\.css$/,
-            loader: ExtractTextPlugin.extract("css-loader", _.extend({}, vfeLoadersCssOpts.options))
-        }, vfeLoadersCssOpts), 
-        _.extend({
+            loader: ExtractTextPlugin.extract("style-loader", "css-loader", _.extend({}, vfeLoadersCssOpts.options))
+        }, vfeLoadersCssOpts))
+    }
+    if (enableLessLoader) {
+        loaders.push(_.extend({
+            test: /\.less$/,
+            loader: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader", _.extend({}, vfeLoadersLessOpts.options))
+        }, vfeLoadersLessOpts))
+    }
+    if (enableImgLoader) {
+        loaders.push(_.extend({
             test: /\.(png|jpg|gif|jpeg|webp)$/,
             loader: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
-        }, vfeLoaders.image)
-    ]
+        }, patchOpts(vfeLoaders.image)))
+    }
+
     var preLoaders = []
 
     var loaderDirectories = [
-        path.join(__dirname, './loaders'), 
-        path.join(__dirname, './node_modules'), 
+        'node_modules',
+        path.join(__dirname, './loaders'),
+        path.join(__dirname, './node_modules'),
         path.join(__dirname, '../') // parent node_modules
     ]
     var moduleOpt = options.module
@@ -212,22 +234,23 @@ function componentsBuild(options) {
     }].concat(preLoaders)
 
     return webpackStream(_.extend({}, options, {
-            entry: entry,
-            module: _.extend({}, moduleOpt, {
-                preLoaders: preLoaders,
-                loaders: loaders
-            }),
-            resolveLoader: _.extend({}, options.resolveLoader, {
-                modulesDirectories: loaderDirectories
-            }),
-            plugins: plugins,
-            resolve: _.extend({}, resolveOpt, {
-                modulesDirectories: resolveModules,
-                extensions: extensions
-            }),
-        }))
+        entry: entry,
+        module: _.extend({}, moduleOpt, {
+            preLoaders: preLoaders,
+            loaders: loaders
+        }),
+        resolveLoader: _.extend({}, options.resolveLoader, {
+            modulesDirectories: loaderDirectories
+        }),
+        plugins: plugins,
+        resolve: _.extend({}, resolveOpt, {
+            modulesDirectories: resolveModules,
+            extensions: extensions
+        }),
+    })).on('error', function () {
+        this.emit('end')
+    })
 }
-
 
 var builder = function(options) {
 
@@ -259,9 +282,9 @@ var builder = function(options) {
         .pipe(save('components:css,images:' + cssimgId))
         .pipe(gulpif(options.minify !== false,
             multipipe(
-                gulpFilter(['*.css']), 
-                cssmin(), 
-                rename({ suffix: '.min' }), 
+                gulpFilter(['*.css']),
+                cssmin(),
+                rename({ suffix: '.min' }),
                 save('components:css.min:' + cssminId)
             )
         ))
@@ -277,7 +300,7 @@ var builder = function(options) {
         .pipe(gulpif(typeof options.version != 'undefined', rename({
             suffix: '_' + options.version
         })))
-        .pipe(gulpif(options.minify !== false, 
+        .pipe(gulpif(options.minify !== false,
             multipipe(
                 save('components:js:' + jsId),
                 uglify(),
@@ -287,6 +310,9 @@ var builder = function(options) {
             )
         ))
         .pipe(save.restore('components:css,images:' + cssimgId))
+        .on('error', function () {
+            this.emit('end')
+        })
 }
 builder.bundle = function (src, options) {
     options = options || {}
@@ -320,14 +346,11 @@ builder.bundle = function (src, options) {
             .pipe(rename({ suffix: '.min' }))
             .pipe(gulpif(!hasConcats, save.restore('bundle:js:' + bid)))
     } else {
-        stream = stream
-            .pipe(gulpif(usingHash, hash(hashOpt)))
-            .pipe(gulpif(version !== false, rename({suffix: '_' + version})))
-
         if (hasConcats) {
             stream = merge2(stream, gulp.src(concats))
         }
         stream = stream.pipe(concat(bundleFileName))
+            .pipe(gulpif(usingHash, hash(hashOpt)))
     }
 
     return stream
@@ -351,17 +374,19 @@ builder.util = {
         var pending
         var hasNext
         function next() {
-            if (pending == false) return
-            pending = false
-            if (hasNext) {
-                hasNext = false
-                fn(next)
-            } 
+            setTimeout(function () {
+                if (pending === false) return
+                pending = false
+
+                if (hasNext) {
+                    hasNext = false
+                    fn(next)
+                }
+            }, 50) // call after gulp ending handler done
         }
         return function () {
-            if (pending) {
-                return hasNext = true
-            }
+            if (pending) return hasNext = true
+
             pending = true
             fn(next)
         }
