@@ -1,7 +1,6 @@
 'use strict';
 
 var gulp = require('gulp')
-var path = require('path')
 var uglify = require('gulp-uglify')
 var concat = require('gulp-concat')
 var rimraf = require('gulp-rimraf')
@@ -53,7 +52,7 @@ function componentsBuild(options) {
                 } else {
                     // no transform
                     f.request = f.request.replace(/^\!/, '')
-                    
+
                 }
                 return f
             }),
@@ -171,8 +170,8 @@ function componentsBuild(options) {
 
     var loaderDirectories = [
         'node_modules',
-        path.join(__dirname, './loaders'), 
-        path.join(__dirname, './node_modules'), 
+        path.join(__dirname, './loaders'),
+        path.join(__dirname, './node_modules'),
         path.join(__dirname, '../') // parent node_modules
     ]
     var moduleOpt = options.module
@@ -283,9 +282,9 @@ var builder = function(options) {
         .pipe(save('components:css,images:' + cssimgId))
         .pipe(gulpif(options.minify !== false,
             multipipe(
-                gulpFilter(['*.css']), 
-                cssmin(), 
-                rename({ suffix: '.min' }), 
+                gulpFilter(['*.css']),
+                cssmin(),
+                rename({ suffix: '.min' }),
                 save('components:css.min:' + cssminId)
             )
         ))
@@ -298,7 +297,10 @@ var builder = function(options) {
             hashLength: HASH_LENGTH,
             template: '<%= name %>_<%= hash %><%= ext %>'
         })))
-        .pipe(gulpif(options.minify !== false, 
+        .pipe(gulpif(typeof options.version != 'undefined', rename({
+            suffix: '_' + options.version
+        })))
+        .pipe(gulpif(options.minify !== false,
             multipipe(
                 save('components:js:' + jsId),
                 uglify(),
@@ -318,6 +320,7 @@ builder.bundle = function (src, options) {
     var bid = shortid.generate()
     var usingMinify = options.minify !== false
     var usingHash = options.hash !== false
+    var version = 'version' in options ? options.version : false
     var bundleFileName = options.name + '.js'
     var concats = options.concats
     var hashOpt = {
@@ -339,6 +342,7 @@ builder.bundle = function (src, options) {
         }
         stream = stream
             .pipe(gulpif(usingHash, hash(hashOpt)))
+            .pipe(gulpif(version !== false, rename({suffix: '_' + version})))
             .pipe(rename({ suffix: '.min' }))
             .pipe(gulpif(!hasConcats, save.restore('bundle:js:' + bid)))
     } else {
@@ -377,7 +381,7 @@ builder.util = {
                 if (hasNext) {
                     hasNext = false
                     fn(next)
-                } 
+                }
             }, 50) // call after gulp ending handler done
         }
         return function () {
