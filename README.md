@@ -5,11 +5,11 @@ vfe
 vfe is a components builder with specified directory structure, base on webpack and gulp.
 
 - [Usage](https://github.com/switer/vfe#usage)
+- [Command Line](https://github.com/switer/vfe#command-line)
 - [Require Rules](https://github.com/switer/vfe#require-rules)
 - [Custom Modules Directory](https://github.com/switer/vfe#custom-modules-directory)
 - [API](https://github.com/switer/vfe#api)
 - [Expose Modules](https://github.com/switer/vfe#expose-modules)
-- [Command Line](https://github.com/switer/vfe#command-line)
 - [Configure](https://github.com/switer/vfe#configure)
 
 ## Usage
@@ -76,6 +76,44 @@ Project folders specification:
 	
 	Components entry js.
 
+
+## Command line
+
+Install [vfe command line tool](https://github.com/tvfe/vfe-cli):
+```bash
+npm install vfe-cli -g
+```
+
+Init project using [vfe-template](https://github.com/switer/vfe-init-template)
+```bash
+vfe init [template]
+```
+> **Note**: Using proxy option, `vfe init -p $proxy`. Such as `vfe init -p tx`. See [$tx](https://github.com/switer/vfe/blob/master/bin/vfe#L17) 
+
+vfe init support 3 types template:
+
+- **default** An simple boilerplate that using vfe as component builder only.
+- **client**  An boilerplate that fitting in client-side render project. It use [Zect](http://github.com/switer/zect) as components framework.
+- **node** 	  An boilerplate that fitting in server-side render project. It use [Real](http://github.com/switer/real) and [comps](http://github.com/switer/comps).
+
+Run default build task
+```bash
+vfe
+```
+
+Start develop watcher
+```bash
+vfe start
+```
+> Note: Start command support run with another task name, such as `vfe start sometask`, only if task name is `start-sometask`.
+
+Releasing for production
+```bash
+vfe release
+```
+> Note: Release command support run with another task name, such as `vfe release sometask`, only if task name is `release-sometask`.
+
+
 ## Require rules
 
 - **require(`"/$components_modules/name/$resource.js"`)** 
@@ -110,8 +148,6 @@ Project folders specification:
 
 		* require('~/$dir/name') // equal to require('$cwd/$dir/name')
 
-
-[See more usage](https://github.com/switer/vfe/blob/master/test/index.js)
 
 ## Custom modules directory
 ```js
@@ -212,43 +248,6 @@ vfe(options)
 | [multipipe](https://github.com/juliangruber/multipipe)|`multipipe`  |
 | [webpack](https://github.com/webpack/webpack)|`webpack`  |
 | [ExtractTextPlugin](https://github.com/webpack/extract-text-webpack-plugin)|`extract-text-webpack-plugin`  |
-
-
-## Command line
-
-Install cli
-```bash
-npm install vfe-cli -g
-```
-
-Init project using [vfe-template](https://github.com/switer/vfe-init-template)
-```bash
-vfe init [template]
-```
-> **Note**: Using proxy option, `vfe init -p $proxy`. Such as `vfe init -p tx`. See [$tx](https://github.com/switer/vfe/blob/master/bin/vfe#L17) 
-
-vfe init support 3 types template:
-
-- **default** An simple boilerplate that using vfe as component builder only.
-- **client**  An boilerplate that fitting in client-side render project. It use [Zect](http://github.com/switer/zect) as components framework.
-- **node** 	  An boilerplate that fitting in server-side render project. It use [Real](http://github.com/switer/real) and [comps](http://github.com/switer/comps).
-
-Run default build task
-```bash
-vfe
-```
-
-Start develop watcher
-```bash
-vfe start
-```
-> Note: Start command support run with another task name, such as `vfe start sometask`, only if task name is `start-sometask`.
-
-Releasing for production
-```bash
-vfe release
-```
-> Note: Release command support run with another task name, such as `vfe release sometask`, only if task name is `release-sometask`.
 
 
 ## Configure
