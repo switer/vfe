@@ -252,7 +252,8 @@ vfe(options)
 
 ## Configure
 
-#### vfe specified config
+* **Override vfe's loader config**
+
 ```js
 {
 	vfeLoaders: {
@@ -263,7 +264,7 @@ vfe(options)
 }
 ```
 
-#### WebPack
+* **WebPack**
 Using as **vfe(`options`)** , `options` will be passed through to webpack function.
 
 ## License
