@@ -36,7 +36,9 @@ function componentsBuild(options) {
     }
     var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
     var usingHash = options.hash !== false
-    var cssOutputName = usingHash ? '[name]_[hash:' + HASH_LENGTH +  '].css' : '[name].css'
+    var cssOutputName = usingHash ? '[name]_[contenthash:' + HASH_LENGTH +  '].css' : '[name].css'
+    var cssOutputOpts = options.vfePlugins ? options.vfePlugins.extractText : {}
+
     function ruleFilter(f) {
         if (/^\~/.test(f.request)) return true
     }
@@ -122,7 +124,7 @@ function componentsBuild(options) {
                 return f
             }),
             // extract css bundle
-            new ExtractTextPlugin(cssOutputName)
+            new ExtractTextPlugin(cssOutputName, _.extend({}, cssOutputOpts))
         ]
 
     if (options.rule == false) {

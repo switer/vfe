@@ -176,6 +176,11 @@ vfe({
 	* `minify` enable/disable compress css/js, default true
 	* `rule`  enable/disable require rule transform, default true
 	* `onRequest` <Function> Call before rule transforming, return `false` will skip transform
+	* `vfeLoaders` configuration for build in plugins, include:
+
+		- **extractText** Custom options for [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin).
+
+
 	* `vfeLoaders` configuration for build in loaders, include: 
 
 		- **tpl** default enable, set false to disable

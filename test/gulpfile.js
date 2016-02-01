@@ -39,7 +39,8 @@ gulp.task('default', ['clean'], function () {
 		}),
 		vfe({
 			entry: {
-				a: 'main.js'
+				index: 'main.js',
+				detail: 'detail.js'
 			},
 			output: {
 				filename: '[name].js',				
