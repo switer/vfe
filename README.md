@@ -93,9 +93,9 @@ vfe init [template]
 vfe init support 3 types template:
 
 - **default** An simple boilerplate that using vfe as component builder only.
-- **client**  An boilerplate that is appropriate for client-side render project. It use [Zect](http://github.com/switer/zect) as components framework.
-- **node**    An boilerplate that is appropriate for server-side render project. It use [Real](http://github.com/switer/real) and [comps](http://github.com/switer/comps).
-- **spa**    An boilerplate that is appropriate for the project using client-side render and using hash route as **Single-Aage-App**. Components framework use [Zect](http://github.com/switer/zect) and router use [Routed](https://github.com/routedjs/routed).
+- **client**  The boilerplate is appropriate for client-side render project. It use [Zect](http://github.com/switer/zect) as components framework.
+- **node**    The boilerplate is appropriate for server-side render project. It use [Real](http://github.com/switer/real) and [comps](http://github.com/switer/comps).
+- **spa**     The boilerplate is appropriate for that project which using client-side render and hash router without reloading. Components framework use [Zect](http://github.com/switer/zect) and router use [Routed](https://github.com/routedjs/routed).
 
 Run default build task
 ```bash
