@@ -105,12 +105,16 @@ vfe
 Start develop watcher
 ```bash
 vfe start
+## aliase
+vfe s
 ```
 > Note: Start command support run with another task name, such as `vfe start sometask`, only if task name is `start-sometask`.
 
 Releasing for production
 ```bash
 vfe release
+## aliase
+vfe r
 ```
 > Note: Release command support run with another task name, such as `vfe release sometask`, only if task name is `release-sometask`.
 
