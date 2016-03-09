@@ -7,6 +7,7 @@ var concat = require('gulp-concat')
 var rimraf = require('gulp-rimraf')
 var hash = require('gulp-hash')
 var gulpif = require('gulp-if')
+var gulpHeader = require('gulp-header')
 var merge2 = require('merge2')
 var multipipe = require('multipipe')
 var gulpFilter = require('gulp-filter')
@@ -258,8 +259,9 @@ function componentsBuild(options) {
 var builder = function(options) {
 
     options = options || {}
-    var cssFilter = gulpFilter(['*.js', '!*.css'])
-    var jsFilter = gulpFilter(['**/*', '!*.js'])
+    var jsOnlyFilter = gulpFilter(['*.js']) // remove all files except js
+    var jsFilter = gulpFilter(['**/*', '!*.js']) // remove js from matched files
+    var cssOnlyFilter = gulpFilter(['*.css']) // remove js from matched files
 
     // var entry = options.entry || './index.js'
     var libs = options.libs
@@ -268,6 +270,7 @@ var builder = function(options) {
     var cssimgId = shortid.generate()
     var cssminId = shortid.generate()
     var jsId = shortid.generate()
+    var headerOpt = options.header
 
     /**
      * concat component js bundle with lib js
@@ -275,6 +278,16 @@ var builder = function(options) {
     isConcatLibs && streams.push(
         gulp.src(libs)
     )
+
+    function addHeader() {
+        var opt = headerOpt || {}
+        return gulpif(function (file) {
+            if (!headerOpt) return false
+            else if (!/\.(js|css)$/.test(file.path)) return false // css and js only
+            else if(!headerOpt.test) return true // match all
+            else return headerOpt.test.test(file.path)
+        }, gulpHeader(opt.text || '', opt.data || {}))
+    }
 
     /**
      * using webpack build component modules
@@ -285,14 +298,14 @@ var builder = function(options) {
         .pipe(save('components:css,images:' + cssimgId))
         .pipe(gulpif(options.minify !== false,
             multipipe(
-                gulpFilter(['*.css']), 
+                gulpFilter(['*.css']),
                 cssmin(), 
                 rename({ suffix: '.min' }), 
                 save('components:css.min:' + cssminId)
             )
         ))
         .pipe(jsFilter.restore())
-        .pipe(cssFilter)
+        .pipe(jsOnlyFilter) // here will output js/css/images, remove css and images
     )
     return merge2.apply(null, streams)
         .pipe(gulpif(isConcatLibs, concat(options.name + '.js', {newLine: ';'})))
@@ -310,6 +323,7 @@ var builder = function(options) {
             )
         ))
         .pipe(save.restore('components:css,images:' + cssimgId))
+        .pipe(addHeader()) // add here for css files
         .on('error', function () {
             this.emit('end')
         })
@@ -368,6 +382,7 @@ builder.hash = hash
 builder.if = gulpif
 builder.filter = gulpFilter
 builder.multipipe = multipipe
+builder.header = header
 builder.util = {
     /**
      * Run once and lastest one

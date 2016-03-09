@@ -45,6 +45,11 @@ gulp.task('default', ['clean'], function () {
 			output: {
 				filename: '[name].js',				
 			},
+			header: {
+				test: /detail.*\.js$/,
+				text: '/** Banner for detail file **/\n',
+				data: {}
+			},
 			libs: './lib/*.js',
 			hash: true,
 			minify: true,

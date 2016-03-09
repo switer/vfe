@@ -30,6 +30,7 @@
     "gulp-cssmin": "^0.1.7",
     "gulp-filter": "^2.0.2",
     "gulp-hash": "^2.0.4",
+    "gulp-header": "^1.7.1",
     "gulp-if": "^1.2.5",
     "gulp-rename": "^1.2.2",
     "gulp-rimraf": "^0.2.0",
