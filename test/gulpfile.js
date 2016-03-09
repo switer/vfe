@@ -35,7 +35,15 @@ gulp.task('default', ['clean'], function () {
 			name: 'libs',
 			minify: true,
 			hash: true,
-			concats: ['lib/b.js']
+			concats: ['lib/b.js'],
+			header: {
+				test: /libs.*\.js$/,
+				text: '/** <%= name %>@<%= version %> **/\n',
+				data: {
+					name: 'libs',
+					version: '1.0.0'
+				}
+			}
 		}),
 		vfe({
 			entry: {

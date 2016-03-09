@@ -256,6 +256,15 @@ function componentsBuild(options) {
     })
 }
 
+function addHeader(opt) {
+    var hOpt = opt || {}
+    return gulpif(function (file) {
+        if (!opt) return false
+        else if (!/\.(js|css)$/.test(file.path)) return false // css and js only
+        else if(!opt.test) return true // match all
+        else return opt.test.test(file.path)
+    }, gulpHeader(hOpt.text || '', hOpt.data || {}))
+}
 var builder = function(options) {
 
     options = options || {}
@@ -278,16 +287,6 @@ var builder = function(options) {
     isConcatLibs && streams.push(
         gulp.src(libs)
     )
-
-    function addHeader() {
-        var opt = headerOpt || {}
-        return gulpif(function (file) {
-            if (!headerOpt) return false
-            else if (!/\.(js|css)$/.test(file.path)) return false // css and js only
-            else if(!headerOpt.test) return true // match all
-            else return headerOpt.test.test(file.path)
-        }, gulpHeader(opt.text || '', opt.data || {}))
-    }
 
     /**
      * using webpack build component modules
@@ -340,6 +339,7 @@ builder.bundle = function (src, options) {
         hashLength: HASH_LENGTH,
         template: '<%= name %>_<%= hash %><%= ext %>'
     }
+    var headerOpt = options.header
     var hasConcats = _.isArray(concats) && !!concats.length
     var stream = gulp.src(src)
 
@@ -369,7 +369,7 @@ builder.bundle = function (src, options) {
             .pipe(gulpif(usingHash, hash(hashOpt)))
     }
 
-    return stream
+    return stream.pipe(addHeader(headerOpt))
 }
 builder.HASH_LENGTH = HASH_LENGTH
 builder.clean = rimraf
@@ -382,7 +382,7 @@ builder.hash = hash
 builder.if = gulpif
 builder.filter = gulpFilter
 builder.multipipe = multipipe
-builder.header = header
+builder.header = gulpHeader
 builder.util = {
     /**
      * Run once and lastest one
