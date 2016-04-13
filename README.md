@@ -277,6 +277,14 @@ vfe(options)
 * **WebPack**
 Using as **vfe(`options`)** , `options` will be passed through to webpack function.
 
+## Change logs
+
+### Version 2.0.0 - 2016/4/13
+- Remove options: "node_modules", "onRequest".
+- Added options: "componentsDirectories" those directories will auto append to resolve.modulesDirectories.
+- Using componentResolver instead normalModuleReplacement for component rules
+
+
 ## License
 
 MIT.
