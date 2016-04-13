@@ -31,24 +31,24 @@ gulp.task('default', ['clean'], function () {
 		}, action)
 	}
 	return vfe.merge(
-		// vfe.bundle(['lib/a.js'], {
-		// 	name: 'libs',
-		// 	minify: true,
-		// 	hash: true,
-		// 	concats: ['lib/b.js'],
-		// 	header: {
-		// 		test: /libs.*\.js$/,
-		// 		text: '/** <%= name %>@<%= version %> **/\n',
-		// 		data: {
-		// 			name: 'libs',
-		// 			version: '1.0.0'
-		// 		}
-		// 	}
-		// }),
+		vfe.bundle(['lib/a.js'], {
+			name: 'libs',
+			minify: true,
+			hash: true,
+			concats: ['lib/b.js'],
+			header: {
+				test: /libs.*\.js$/,
+				text: '/** <%= name %>@<%= version %> **/\n',
+				data: {
+					name: 'libs',
+					version: '1.0.0'
+				}
+			}
+		}),
 		vfe({
 			entry: {
 				index: 'main.js',
-				// detail: 'detail.js'
+				detail: 'detail.js'
 			},
 			output: {
 				filename: '[name].js',				
