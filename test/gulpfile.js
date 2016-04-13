@@ -66,9 +66,12 @@ gulp.task('default', ['clean'], function () {
 				loader: 'json-loader',
 			}],
 			loaderDirectories: ['webpack-loaders', 'node_modules'],
-			componentsDirectories: ['c', 'custom_modules'],
 			modulesDirectories: ['', 'node_modules'],
 			node_modules: ['real'],
+			components: {
+				directories: ['c', 'custom_modules'],
+				extensions: ['js']
+			},
 			vfeLoaders: {
 				css: {
 					options: {

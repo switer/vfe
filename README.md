@@ -182,8 +182,8 @@ vfe({
 	* `minify` enable/disable compress css/js, default true
 	* `rule`  enable/disable require rule transform, default true
 	* `vfeLoaders` configuration for build in plugins, include:
-	* `componentDirectories` those modules in directories will be loaded as components(using component require rule if matched), and directories will be append to **resolver.modulesDirectories**
-	
+	* `components.directories` those modules in directories will be loaded as components(using component require rule if matched), and directories will be append to **resolver.modulesDirectories**, default `[c]`
+	* `components.extensions` Load components by matching extension, default `[js,jsx,coffee]`
 	* `vfePlugins`
 		
 		- **extractText** Custom options for [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin).

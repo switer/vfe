@@ -28,7 +28,9 @@ var root = process.cwd()
 function noop () {}
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
-    var componentsModules = options.componentsDirectories || ['c']
+    var componentsOptions = options.components || {}
+    var componentsModules = componentsOptions.directories || ['c']
+    var componentsExtensions = componentsOptions.extensions || ["js", "jsx", "coffee"]
     var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
     var usingHash = options.hash !== false
     var cssOutputName = usingHash ? '[name]_[contenthash:' + HASH_LENGTH +  '].css' : '[name].css'
@@ -39,9 +41,7 @@ function componentsBuild(options) {
     }
     var plugins = [
             new webpack.ResolverPlugin([
-              new ComponentPlugin(
-                ["js", "jsx", "coffee"]
-              )
+              new ComponentPlugin(componentsExtensions)
             ]),
             new webpack.NormalModuleReplacementPlugin(/^\!(?:[^!]+)/, function(f) {
                 var unmatches = f.request.match(/\!/g)
