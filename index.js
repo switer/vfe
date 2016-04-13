@@ -173,6 +173,8 @@ function componentsBuild(options) {
     if (resolveOpt && resolveOpt.modulesDirectories) {
         isModulesDirectoriesEmpty = isModulesDirectoriesEmpty || true
         resolveModules = resolveModules.concat(resolveOpt.modulesDirectories)
+    } else {
+        isModulesDirectoriesEmpty = false
     }
     // options: resolveLoader.modulesDirectories
     if (resolveLoaderOpt && resolveLoaderOpt.modulesDirectories) {
