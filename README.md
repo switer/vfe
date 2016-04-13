@@ -181,10 +181,12 @@ vfe({
 	* `hash` enable/disable using output, default true
 	* `minify` enable/disable compress css/js, default true
 	* `rule`  enable/disable require rule transform, default true
-	* `onRequest` <Function> Call before rule transforming, return `false` will skip transform
 	* `vfeLoaders` configuration for build in plugins, include:
-
-	- **extractText** Custom options for [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin).
+	* `componentDirectories` those modules in directories will be loaded as components(using component require rule if matched), and directories will be append to **resolver.modulesDirectories**
+	
+	* `vfePlugins`
+		
+		- **extractText** Custom options for [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin).
 
 	* `vfeLoaders` configuration for build in loaders, include: 
 
