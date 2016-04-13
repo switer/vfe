@@ -51,10 +51,10 @@ function componentsBuild(options) {
                 }
                 return f
             }),
-            new webpack.NormalModuleReplacementPlugin(/^\~[\\\/]/, function(f) {
+            new webpack.NormalModuleReplacementPlugin(patterns.HOME_PATH, function(f) {
                 if (!isIgnored(f)) {
                     f.context = root
-                    f.request = path.join('./', f.request.replace(/^\~\/?/, ''))
+                    f.request = path.join('./', f.request.replace(patterns.HOME_PATH, ''))
                 }
                 return f
             }),
