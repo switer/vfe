@@ -19,6 +19,7 @@ var path = require('path')
 var webpackStream = require('webpack-stream')
 var ExtractTextPlugin = require("extract-text-webpack-plugin")
 var ComponentPlugin = require('./plugins/component')
+var patterns = require('./lib/patterns')
 var _ = require('underscore')
 var shortid = require('shortid')
 var HASH_LENGTH = 6
@@ -27,100 +28,54 @@ var root = process.cwd()
 function noop () {}
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
-    var node_modules = options.node_modules || []
-    var onRequest = options.onRequest || function (f) {
-        var context = f.context
-        var request = f.request
-        if (/[\\\/]node_modules[\\\/]/.test(context)) return false
-        if (~node_modules.indexOf(request)) return false
-        else return true
-    }
+    var componentsModules = options.componentsDirectories || ['c']
     var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
     var usingHash = options.hash !== false
     var cssOutputName = usingHash ? '[name]_[contenthash:' + HASH_LENGTH +  '].css' : '[name].css'
     var cssOutputOpts = options.vfePlugins ? options.vfePlugins.extractText : {}
 
-    function ruleFilter(f) {
-        if (/^\~/.test(f.request)) return true
+    function isIgnored(f) {
+        if (patterns.IGNORED.test(f.request)) return true
     }
     var plugins = [
-            // (dir/component)
-            new webpack.NormalModuleReplacementPlugin(/^[\w\_\$\-]+[\/\\][\w\_\$\-]+$/, function(f) {
-                if (onRequest(f) === false) return
-                if (ruleFilter(f)) return
-                if (!/^\!/.test(f.request)) {
-                    var matches = f.request.match(/^([\w\_\$\-]+)[\/\\]([\w\_\$\-]+)$/)
-                    var cdir = matches[1]
-                    var cname = matches[2]
-                    f.request = cdir + '/' + cname + '/' + cname
-                } else {
-                    // no transform
-                    f.request = f.request.replace(/^\!/, '')
-                    
+            new webpack.ResolverPlugin([
+              new ComponentPlugin(
+                ["js", "jsx", "coffee"]
+              )
+            ]),
+            new webpack.NormalModuleReplacementPlugin(/^\!(?:[^!]+)/, function(f) {
+                var unmatches = f.request.match(/\!/g)
+                if (!unmatches || unmatches.length <= 1) {
+                    // ignore matched
+                    f.request = f.request.replace(/^\!/, '$ignored::')
                 }
                 return f
             }),
-            // (component), !(component) will not transform
-            new webpack.NormalModuleReplacementPlugin(/^[\w\_\$\-]+$/, function(f) {
-                if (onRequest(f) === false) return
-                if (ruleFilter(f)) return
-                if (!/^\!/.test(f.request)) {
-                    var cname = f.request.match(/^([\w\_\$\-]+)$/)[1]
-                    f.request = cname + '/' + cname
-                } else {
-                    f.request = f.request.replace(/^\!/, '')
+            new webpack.NormalModuleReplacementPlugin(/^\~[\\\/]/, function(f) {
+                if (!isIgnored(f)) {
+                    f.context = root
+                    f.request = path.join('./', f.request.replace(/^\~\/?/, ''))
                 }
                 return f
             }),
-            // /modules_directory/component
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\][\w\_\$\-]+[\/\\][\w\_\$\-]+$/, function(f) {
-                if (onRequest(f) === false) return
-                if (ruleFilter(f)) return
-                if (!/^\!/.test(f.request)) {
-                    var matches = f.request.match(/[\/\\]([\w\_\$\-]+)[\/\\]([\w\_\$\-]+)$/)
-                    var cdir = matches[1]
-                    var cname = matches[2]
-                    f.request = path.join('!', root, cdir, cname, cname)
-                } else {
-                    f.request = f.request.replace(/^\!/, '')
-                }
-                return f
-            }),
-            // /modules_directory/category/cname
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\][\w\_\$\-]+[\/\\][\w\_\$\-]+[\/\\][\w\_\$\-]+$/, function(f) {
-                if (onRequest(f) === false) return
-                if (ruleFilter(f)) return
-                if (!/^\!/.test(f.request)) {
-                    var matches = f.request.match(/[\/\\]([\w\_\$\-]+)[\/\\]([\w\_\$\-]+)[\/\\]([\w\_\$\-]+)$/)
-                    var cdir = matches[1]
-                    var category = matches[2]
-                    var cname = matches[3]
+            // /modules_directory/*
+            new webpack.NormalModuleReplacementPlugin(patterns.ABSOLUTE_PATH, function(f) {
+                if (!isIgnored(f)) {
+                    var mdir = f.request.match(patterns.ABSOLUTE_PATH)[1]
+                    var cdir
+                    if (componentsModules.some(function (dir) {
+                        cdir = dir
+                        dir = path.basename(dir)
+                        return mdir === dir
+                    })) {
 
-                    f.request = path.join('!', root, cdir, category, cname, cname)
-                } else {
-                    f.request = f.request.replace(/^\!/, '')
-                }
-                return f
-            }),
-            // /*: absolute path
-            new webpack.NormalModuleReplacementPlugin(/^[\/\\][\w\_\$\-]+/, function(f) {
-                if (onRequest(f) === false) return
-                f.request = f.request.replace(/^[\/\\]([\w\_\$\-]+)/, function (m, fname) {
-                    f.context = root
-                    return './' + fname
-                })
-                return f
-            }),
-            // /*: absolute path
-            new webpack.NormalModuleReplacementPlugin(/^[\!\~]/, function(f) {
-                if (onRequest(f) === false) return
-                var request = f.request
-                if (/^\~/.test(request)) {
-                    f.context = root
-                    f.request = path.join('./', request.replace(/^\~\/?/, ''))
-                    return
-                } else {
-                    f.request = request.replace(/^\!/, '')
+                        f.request = path.join(
+                            path.isAbsolute(cdir) 
+                                ? cdir 
+                                : path.join(process.cwd(), cdir), 
+                            f.request.replace(patterns.ABSOLUTE_PATH, '')
+                        )
+                    }
                 }
                 return f
             }),
@@ -181,7 +136,7 @@ function componentsBuild(options) {
     var moduleOpt = options.module
     var resolveOpt = options.resolve
     var resolveLoaderOpt = options.resolveLoader
-    var resolveModules = [] // below will set default to "c" directory
+    var resolveModules = [].concat(componentsModules) // below will set default to "c" directory
 
     // options: plugins
     if (options.plugins) {
@@ -195,8 +150,11 @@ function componentsBuild(options) {
     if (options.loaderDirectories) {
         loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
+
+    var isModulesDirectoriesEmpty = false
     // options: modulesDirectories @vfe
     if (options.modulesDirectories && options.modulesDirectories.length) {
+        isModulesDirectoriesEmpty = true
         resolveModules = resolveModules.concat(options.modulesDirectories)
     }
     // options: module.preLoaders
@@ -213,6 +171,7 @@ function componentsBuild(options) {
     }
     // options: resolve.modulesDirectories
     if (resolveOpt && resolveOpt.modulesDirectories) {
+        isModulesDirectoriesEmpty = isModulesDirectoriesEmpty || true
         resolveModules = resolveModules.concat(resolveOpt.modulesDirectories)
     }
     // options: resolveLoader.modulesDirectories
@@ -220,7 +179,9 @@ function componentsBuild(options) {
         loaderDirectories = loaderDirectories.concat(resolveLoaderOpt.modulesDirectories)
     }
 
-    resolveModules = resolveModules && resolveModules.length ?  resolveModules : ['c', 'node_modules']
+    if (isModulesDirectoriesEmpty) {
+        resolveModules.push('node_modules')
+    }
     preLoaders = [{
         test: new RegExp('/($dir)/$w+/$w+/$w+\.js$'
             .replace(/\//g, '[\/\\\\]')
