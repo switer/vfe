@@ -6,6 +6,7 @@ var uglify = require('gulp-uglify')
 var concat = require('gulp-concat')
 var rimraf = require('gulp-rimraf')
 var hash = require('gulp-hash')
+var rev = require('gulp-rev')
 var gulpif = require('gulp-if')
 var gulpHeader = require('gulp-header')
 var merge2 = require('merge2')
@@ -15,7 +16,7 @@ var cssmin = require('gulp-cssmin')
 var rename = require('gulp-rename')
 var save = require('./tasks/save')
 var webpack = require('webpack')
-var path = require('path')
+var hashName = require('gulp-hash-name')
 var webpackStream = require('webpack-stream')
 var ExtractTextPlugin = require("extract-text-webpack-plugin")
 var ComponentPlugin = require('./plugins/component')
@@ -271,9 +272,9 @@ var builder = function(options) {
     )
     return merge2.apply(null, streams)
         .pipe(gulpif(isConcatLibs, concat(options.name + '.js', {newLine: ';'})))
-        .pipe(gulpif(options.hash !== false, hash({
+        .pipe(gulpif(options.hash !== false, rev({
             hashLength: HASH_LENGTH,
-            template: '<%= name %>_<%= hash %><%= ext %>'
+            template: '{name}_{hash}{ext}'
         })))
         .pipe(gulpif(options.minify !== false, 
             multipipe(
@@ -300,7 +301,7 @@ builder.bundle = function (src, options) {
     var concats = options.concats
     var hashOpt = {
         hashLength: HASH_LENGTH,
-        template: '<%= name %>_<%= hash %><%= ext %>'
+        template: '{name}_{hash}{ext}'
     }
     var headerOpt = options.header
     var hasConcats = _.isArray(concats) && !!concats.length
@@ -309,7 +310,7 @@ builder.bundle = function (src, options) {
     if (usingMinify) {
         stream = stream
             .pipe(concat(bundleFileName))
-            .pipe(gulpif(usingHash, hash(hashOpt)))
+            .pipe(gulpif(usingHash, hashName(hashOpt)))
             .pipe(gulpif(!hasConcats, save('bundle:js:' + bid)))
             .pipe(uglify())
 
@@ -319,7 +320,7 @@ builder.bundle = function (src, options) {
         if (hasConcats) {
             stream = merge2(stream, gulp.src(concats))
                 .pipe(concat(bundleFileName))
-                .pipe(gulpif(usingHash, hash(hashOpt)))
+                .pipe(gulpif(usingHash, hashName(hashOpt)))
         }
         stream = stream
             .pipe(rename({ suffix: '.min' }))
@@ -329,7 +330,7 @@ builder.bundle = function (src, options) {
             stream = merge2(stream, gulp.src(concats))
         }
         stream = stream.pipe(concat(bundleFileName))
-            .pipe(gulpif(usingHash, hash(hashOpt)))
+            .pipe(gulpif(usingHash, hashName(hashOpt)))
     }
 
     return stream.pipe(addHeader(headerOpt))
@@ -342,6 +343,7 @@ builder.cssmin = cssmin
 builder.rename = rename
 builder.merge = merge2
 builder.hash = hash
+builder.hashName = hashName
 builder.if = gulpif
 builder.filter = gulpFilter
 builder.multipipe = multipipe
