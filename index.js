@@ -6,7 +6,7 @@ var uglify = require('gulp-uglify')
 var concat = require('gulp-concat')
 var rimraf = require('gulp-rimraf')
 var hash = require('gulp-hash')
-var rev = require('gulp-rev')
+var gutil = require('gulp-util')
 var gulpif = require('gulp-if')
 var gulpHeader = require('gulp-header')
 var merge2 = require('merge2')
@@ -55,7 +55,7 @@ function componentsBuild(options) {
             new webpack.NormalModuleReplacementPlugin(patterns.HOME_PATH, function(f) {
                 if (!isIgnored(f)) {
                     f.context = root
-                    f.request = path.join('./', f.request.replace(patterns.HOME_PATH, ''))
+                    f.request = './' + f.request.replace(patterns.HOME_PATH, '')
                 }
                 return f
             }),
@@ -272,14 +272,14 @@ var builder = function(options) {
     )
     return merge2.apply(null, streams)
         .pipe(gulpif(isConcatLibs, concat(options.name + '.js', {newLine: ';'})))
-        .pipe(gulpif(options.hash !== false, rev({
+        .pipe(gulpif(options.hash !== false, hashName({
             hashLength: HASH_LENGTH,
             template: '{name}_{hash}{ext}'
         })))
         .pipe(gulpif(options.minify !== false, 
             multipipe(
                 save('components:js:' + jsId),
-                uglify(),
+                uglify().on('error', gutil.log),
                 rename({ suffix: '.min' }),
                 save.restore('components:css.min:' + cssminId),
                 save.restore('components:js:' + jsId)
@@ -312,7 +312,7 @@ builder.bundle = function (src, options) {
             .pipe(concat(bundleFileName))
             .pipe(gulpif(usingHash, hashName(hashOpt)))
             .pipe(gulpif(!hasConcats, save('bundle:js:' + bid)))
-            .pipe(uglify())
+            .pipe(uglify().on('error', gutil.log))
 
         /**
          * concats do not output source files
