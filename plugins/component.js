@@ -28,7 +28,6 @@ var getResolveComponent = function(exts) {
         var ignored = (capturedDir && /node_modules$/.test(
             capturedDir[1]
         )) || queryIgnored;
-
         if (captured && !ignored) {
             var componentId = captured[1];
             var context = this;
