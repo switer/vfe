@@ -180,19 +180,19 @@ function componentsBuild(options) {
     if (!resolveModules.length) {
         resolveModules.push('', 'node_modules')
     }
-    resolveModules = resolveModules.concat(componentsModules)
+    resolveModules = componentsModules.concat(resolveModules)
     preLoaders = [{
         test: new RegExp('/($dir)/$w+/$w+/$w+\.js$'
             .replace(/\//g, '[\/\\\\]')
             .replace(/\$w/g, '[^\/\\\\]')
-            .replace('$dir', resolveModules.join('|'))
+            .replace('$dir', componentsModules.join('|'))
         ),
         loader: 'component'
     },{
         test: new RegExp('/($dir)/$w+/$w+\.js$'
             .replace(/\//g, '[\/\\\\]')
             .replace(/\$w/g, '[^\.\/\\\\]')
-            .replace('$dir', resolveModules.join('|'))
+            .replace('$dir', componentsModules.join('|'))
         ),
         loader: 'component'
     }].concat(preLoaders)
