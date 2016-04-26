@@ -137,7 +137,7 @@ function componentsBuild(options) {
     var moduleOpt = options.module
     var resolveOpt = options.resolve
     var resolveLoaderOpt = options.resolveLoader
-    var resolveModules = [].concat(componentsModules) // below will set default to "c" directory
+    var resolveModules = [] // below will set default to "c" directory
 
     // options: plugins
     if (options.plugins) {
@@ -152,10 +152,8 @@ function componentsBuild(options) {
         loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
 
-    var isModulesDirectoriesEmpty = false
     // options: modulesDirectories @vfe
     if (options.modulesDirectories && options.modulesDirectories.length) {
-        isModulesDirectoriesEmpty = true
         resolveModules = resolveModules.concat(options.modulesDirectories)
     }
     // options: module.preLoaders
@@ -172,19 +170,17 @@ function componentsBuild(options) {
     }
     // options: resolve.modulesDirectories
     if (resolveOpt && resolveOpt.modulesDirectories) {
-        isModulesDirectoriesEmpty = isModulesDirectoriesEmpty || true
         resolveModules = resolveModules.concat(resolveOpt.modulesDirectories)
-    } else {
-        isModulesDirectoriesEmpty = false
     }
     // options: resolveLoader.modulesDirectories
     if (resolveLoaderOpt && resolveLoaderOpt.modulesDirectories) {
         loaderDirectories = loaderDirectories.concat(resolveLoaderOpt.modulesDirectories)
     }
 
-    if (isModulesDirectoriesEmpty) {
-        resolveModules.push('node_modules')
+    if (!resolveModules.length) {
+        resolveModules.push('', 'node_modules')
     }
+    resolveModules = resolveModules.concat(componentsModules)
     preLoaders = [{
         test: new RegExp('/($dir)/$w+/$w+/$w+\.js$'
             .replace(/\//g, '[\/\\\\]')
