@@ -5,7 +5,6 @@ var path = require('path')
 var uglify = require('gulp-uglify')
 var concat = require('gulp-concat')
 var rimraf = require('gulp-rimraf')
-var hash = require('gulp-hash')
 var gutil = require('gulp-util')
 var gulpif = require('gulp-if')
 var gulpHeader = require('gulp-header')
@@ -338,8 +337,7 @@ builder.uglify = uglify
 builder.cssmin = cssmin
 builder.rename = rename
 builder.merge = merge2
-builder.hash = hash
-builder.hashName = hashName
+builder.hash = builder.hashName = hashName
 builder.if = gulpif
 builder.filter = gulpFilter
 builder.multipipe = multipipe
