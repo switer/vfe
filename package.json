@@ -1,6 +1,6 @@
 {
   "name": "vfe",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "vfe build cli, base on webpack & gulp.",
   "main": "index.js",
   "scripts": {
@@ -44,6 +44,7 @@
     "style-loader": "^0.13.1",
     "through2": "^2.0.1",
     "underscore": "^1.8.3",
+    "url-loader": "^0.5.7",
     "webpack": "^1.13.1",
     "webpack-stream": "^3.2.0"
   }

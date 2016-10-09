@@ -89,10 +89,11 @@ function componentsBuild(options) {
     }
 
     var vfeLoaders = options.vfeLoaders || {}
-    var enableLessLoader = !!vfeLoaders.less // default disable
-    var enableCssLoader = vfeLoaders.css !== false // default enable
-    var enableTplLoader = vfeLoaders.tpl !== false // default enable
-    var enableImgLoader = vfeLoaders.image !== false // default enable
+    var enableLessLoader = !!vfeLoaders.less            // default disable
+    var enableCssLoader = vfeLoaders.css !== false      // default enable
+    var enableTplLoader = vfeLoaders.tpl !== false      // default enable
+    var enableImgLoader = vfeLoaders.image !== false    // default enable
+    var enableFontLoader = vfeLoaders.font !== false    // default enable
     function patchOpts (opts) {
         return _.isObject(opts) ? opts : {}
     }
@@ -123,6 +124,12 @@ function componentsBuild(options) {
             test: /\.(png|jpg|gif|jpeg|webp)$/,
             loader: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
         }, patchOpts(vfeLoaders.image)))
+    }
+    if (enableFontLoader) {
+        loaders.push(_.extend({
+            test: /\.(woff|woff2|eot|ttf|svg|otf)$/,
+            loader: 'url-loader?limit=100000'
+        }, vfeLoaders.font))
     }
 
     var preLoaders = []
