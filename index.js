@@ -43,11 +43,11 @@ function componentsBuild(options) {
             new webpack.ResolverPlugin([
               new ComponentPlugin(componentsExtensions)
             ]),
-            new webpack.NormalModuleReplacementPlugin(/^\!(?:[^!]+)/, function(f) {
-                var unmatches = f.request.match(/\!/g)
+            new webpack.NormalModuleReplacementPlugin(/^\@(?:[^@]+)/, function(f) {
+                var unmatches = f.request.match(/\@/g)
                 if (!unmatches || unmatches.length <= 1) {
                     // ignore matched
-                    f.request = f.request.replace(/^\!/, '$ignored::')
+                    f.request = f.request.replace(/^\@/, '$ignored::')
                 }
                 return f
             }),
