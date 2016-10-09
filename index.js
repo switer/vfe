@@ -33,7 +33,7 @@ function componentsBuild(options) {
     var componentsExtensions = componentsOptions.extensions || ["js", "jsx", "coffee"]
     var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
     var usingHash = options.hash !== false
-    var cssOutputName = usingHash ? '[name]_[contenthash:' + HASH_LENGTH +  '].css' : '[name].css'
+    var cssOutputName = usingHash ? '[id]_[contenthash:' + HASH_LENGTH +  '].css' : '[id].css'
     var cssOutputOpts = options.vfePlugins ? options.vfePlugins.extractText : {}
 
     function isIgnored(f) {
@@ -43,11 +43,11 @@ function componentsBuild(options) {
             new webpack.ResolverPlugin([
               new ComponentPlugin(componentsExtensions)
             ]),
-            new webpack.NormalModuleReplacementPlugin(/^\@(?:[^@]+)/, function(f) {
-                var unmatches = f.request.match(/\@/g)
+            new webpack.NormalModuleReplacementPlugin(/^\#(?:[^#]+)/, function(f) {
+                var unmatches = f.request.match(/\#/g)
                 if (!unmatches || unmatches.length <= 1) {
                     // ignore matched
-                    f.request = f.request.replace(/^\@/, '$ignored::')
+                    f.request = f.request.replace(/^\#/, '$ignored::')
                 }
                 return f
             }),

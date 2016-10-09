@@ -142,11 +142,11 @@ vfe r
 
 	Load html template file as a string module.
 
-- **require(`"@$name"`)**
+- **require(`"#$name"`)**
 	
 	Request "$name" module directly without any tansform. Such as:
 
-		* require('@$dir/name') // equal require('$dir/name') directly
+		* require('#$dir/name') // equal require('$dir/name') directly
 
 - **require(`"~/$path"`)**
 	
@@ -282,7 +282,7 @@ Using as **vfe(`options`)** , `options` will be passed through to webpack functi
 ## Change logs
 
 ### Version 2.1.2 - 2016/10/9
-- Using "@$name" instead of "!$name" for resolving module directly, to void rule conflict with webpack.
+- Using "#$name" instead of "!$name" for resolving module directly, to void rule conflict with webpack.
 - Add `vfeLoaders.font` option.
 
 ### Version 2.0.0 - 2016/4/13
