@@ -281,7 +281,7 @@ var builder = function(options) {
         .pipe(gulpif(options.minify !== false, 
             multipipe(
                 save('components:js:' + jsId),
-                uglify().on('error', gutil.log),
+                uglify(options.uglify).on('error', gutil.log),
                 rename({ suffix: '.min' }),
                 save.restore('components:css.min:' + cssminId),
                 save.restore('components:js:' + jsId)
@@ -314,7 +314,7 @@ builder.bundle = function (src, options) {
             .pipe(concat(bundleFileName))
             .pipe(gulpif(usingHash, hashName(hashOpt)))
             .pipe(gulpif(!hasConcats, save('bundle:js:' + bid)))
-            .pipe(uglify().on('error', gutil.log))
+            .pipe(uglify(options.uglify).on('error', gutil.log))
 
         /**
          * concats do not output source files
