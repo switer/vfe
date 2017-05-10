@@ -41,7 +41,12 @@ function componentsBuild(options) {
     }
     var plugins = [
             new webpack.ResolverPlugin([
-              new ComponentPlugin(componentsExtensions)
+              new ComponentPlugin(componentsModules.map(function(n){
+                    if (path.isAbsolute(n)) return n
+                    else {
+                        return path.resolve(n)
+                    }
+              }), componentsExtensions)
             ]),
             new webpack.NormalModuleReplacementPlugin(/^\#(?:[^#]+)/, function(f) {
                 var unmatches = f.request.match(/\#/g)
