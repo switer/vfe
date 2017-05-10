@@ -7,13 +7,15 @@ var queryString = require('querystring');
 var patterns = require('../lib/patterns');
 
 
-var getResolveComponent = function(exts) {
+var getResolveComponent = function(modules, exts) {
     return function(request, callback) {
         var requestPath = request.request || '';
         if (!path.isAbsolute(requestPath)) {
             requestPath = path.join(request.path, requestPath);
         }
-        var captured = requestPath.match(patterns.COMPONENT_ID_PATH);
+        var captured = modules.some(function (mod) {
+            return requestPath.indexOf(mod) === 0
+        }) && requestPath.match(patterns.COMPONENT_ID_PATH);
         var queryIgnored = /_ignored=1/.test(request.query)
 
         // Allow to pass query ignored query
@@ -23,13 +25,11 @@ var getResolveComponent = function(exts) {
             query = queryString.stringify(query)
             request.query = query ? '?' + queryString.stringify(query) : null
         }
+
         var capturedDir = requestPath.match(patterns.ENCLOSING_DIR_PATH)
         // Ignore npm modules
-        var ignored = (capturedDir && /node_modules$/.test(
-            capturedDir[1]
-        )) || queryIgnored;
-
-        if (captured && !ignored) {
+        var ignored = !captured || (capturedDir && /node_modules$/.test(capturedDir[1])) || queryIgnored;
+        if (!ignored) {
             var componentId = captured[1];
             var context = this;
 
@@ -51,11 +51,10 @@ var getResolveComponent = function(exts) {
                 var resolvePath, componentFileName, componentFilePath;
 
                 // Try to load regular file
-                if (extObj.file) {
-                    resolvePath = requestPath.match(patterns.ENCLOSING_DIR_PATH)[1];
+                if (extObj.file && capturedDir) {
+                    resolvePath = capturedDir[1];
                     componentFileName = componentId + '.' + extObj.ext;
                     componentFilePath = requestPath + '.' + extObj.ext;
-
                 } else {
                     resolvePath = requestPath;
                     componentFileName = componentId + '.' + extObj.ext;
@@ -84,8 +83,9 @@ var getResolveComponent = function(exts) {
     };
 };
 
-var ComponentResolverPlugin = function(exts) {
+var ComponentResolverPlugin = function(modules, exts) {
     this.exts = exts || ['jsx', 'js'];
+    this.modules = modules || []
 };
 
 ComponentResolverPlugin.prototype.apply = function(resolver) {
@@ -102,7 +102,7 @@ ComponentResolverPlugin.prototype.apply = function(resolver) {
     		request.query = '?' + queryString.stringify(query)
     	}
     });
-    resolver.plugin('directory', getResolveComponent(this.exts));
+    resolver.plugin('directory', getResolveComponent(this.modules, this.exts));
 };
 
 module.exports = ComponentResolverPlugin;

@@ -142,11 +142,11 @@ vfe r
 
 	Load html template file as a string module.
 
-- **require(`"!$name"`)**
+- **require(`"#$name"`)**
 	
 	Request "$name" module directly without any tansform. Such as:
 
-		* require('!$dir/name') // equal require('$dir/name') directly
+		* require('#$dir/name') // equal require('$dir/name') directly
 
 - **require(`"~/$path"`)**
 	
@@ -181,10 +181,12 @@ vfe({
 	* `hash` enable/disable using output, default true
 	* `minify` enable/disable compress css/js, default true
 	* `rule`  enable/disable require rule transform, default true
-	* `onRequest` <Function> Call before rule transforming, return `false` will skip transform
 	* `vfeLoaders` configuration for build in plugins, include:
-
-	- **extractText** Custom options for [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin).
+	* `components.directories` those modules in directories will be loaded as components(using component require rule if matched), and directories will be append to **resolver.modulesDirectories**, default `[c]`
+	* `components.extensions` Load components by matching extension, default `[js,jsx,coffee]`
+	* `vfePlugins`
+		
+		- **extractText** Custom options for [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin).
 
 	* `vfeLoaders` configuration for build in loaders, include: 
 
@@ -278,6 +280,10 @@ vfe(options)
 Using as **vfe(`options`)** , `options` will be passed through to webpack function.
 
 ## Change logs
+
+### Version 2.1.2 - 2016/10/9
+- Using "#$name" instead of "!$name" for resolving module directly, to void rule conflict with webpack.
+- Add `vfeLoaders.font` option.
 
 ### Version 2.0.0 - 2016/4/13
 - Remove options: "node_modules", "onRequest".

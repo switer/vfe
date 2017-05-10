@@ -5,7 +5,7 @@ var path = require('path')
 var uglify = require('gulp-uglify')
 var concat = require('gulp-concat')
 var rimraf = require('gulp-rimraf')
-var hash = require('gulp-hash')
+var gutil = require('gulp-util')
 var gulpif = require('gulp-if')
 var gulpHeader = require('gulp-header')
 var merge2 = require('merge2')
@@ -15,7 +15,7 @@ var cssmin = require('gulp-cssmin')
 var rename = require('gulp-rename')
 var save = require('./tasks/save')
 var webpack = require('webpack')
-var path = require('path')
+var hashName = require('gulp-hash-name')
 var webpackStream = require('webpack-stream')
 var ExtractTextPlugin = require("extract-text-webpack-plugin")
 var ComponentPlugin = require('./plugins/component')
@@ -28,7 +28,9 @@ var root = process.cwd()
 function noop () {}
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
-    var componentsModules = options.componentsDirectories || ['c']
+    var componentsOptions = options.components || {}
+    var componentsModules = componentsOptions.directories || ['c']
+    var componentsExtensions = componentsOptions.extensions || ["js", "jsx", "coffee"]
     var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
     var usingHash = options.hash !== false
     var cssOutputName = usingHash ? '[name]_[contenthash:' + HASH_LENGTH +  '].css' : '[name].css'
@@ -39,22 +41,25 @@ function componentsBuild(options) {
     }
     var plugins = [
             new webpack.ResolverPlugin([
-              new ComponentPlugin(
-                ["js", "jsx", "coffee"]
-              )
+              new ComponentPlugin(componentsModules.map(function(n){
+                    if (path.isAbsolute(n)) return n
+                    else {
+                        return path.resolve(n)
+                    }
+              }), componentsExtensions)
             ]),
-            new webpack.NormalModuleReplacementPlugin(/^\!(?:[^!]+)/, function(f) {
-                var unmatches = f.request.match(/\!/g)
+            new webpack.NormalModuleReplacementPlugin(/^\#(?:[^#]+)/, function(f) {
+                var unmatches = f.request.match(/\#/g)
                 if (!unmatches || unmatches.length <= 1) {
                     // ignore matched
-                    f.request = f.request.replace(/^\!/, '$ignored::')
+                    f.request = f.request.replace(/^\#/, '$ignored::')
                 }
                 return f
             }),
-            new webpack.NormalModuleReplacementPlugin(/^\~[\\\/]/, function(f) {
+            new webpack.NormalModuleReplacementPlugin(patterns.HOME_PATH, function(f) {
                 if (!isIgnored(f)) {
                     f.context = root
-                    f.request = path.join('./', f.request.replace(/^\~\/?/, ''))
+                    f.request = './' + f.request.replace(patterns.HOME_PATH, '')
                 }
                 return f
             }),
@@ -89,10 +94,11 @@ function componentsBuild(options) {
     }
 
     var vfeLoaders = options.vfeLoaders || {}
-    var enableLessLoader = !!vfeLoaders.less // default disable
-    var enableCssLoader = vfeLoaders.css !== false // default enable
-    var enableTplLoader = vfeLoaders.tpl !== false // default enable
-    var enableImgLoader = vfeLoaders.image !== false // default enable
+    var enableLessLoader = !!vfeLoaders.less            // default disable
+    var enableCssLoader = vfeLoaders.css !== false      // default enable
+    var enableTplLoader = vfeLoaders.tpl !== false      // default enable
+    var enableImgLoader = vfeLoaders.image !== false    // default enable
+    var enableFontLoader = vfeLoaders.font !== false    // default enable
     function patchOpts (opts) {
         return _.isObject(opts) ? opts : {}
     }
@@ -124,6 +130,12 @@ function componentsBuild(options) {
             loader: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
         }, patchOpts(vfeLoaders.image)))
     }
+    if (enableFontLoader) {
+        loaders.push(_.extend({
+            test: /\.(woff|woff2|eot|ttf|svg|otf)$/,
+            loader: 'url-loader?limit=100000'
+        }, vfeLoaders.font))
+    }
 
     var preLoaders = []
 
@@ -136,7 +148,7 @@ function componentsBuild(options) {
     var moduleOpt = options.module
     var resolveOpt = options.resolve
     var resolveLoaderOpt = options.resolveLoader
-    var resolveModules = [].concat(componentsModules) // below will set default to "c" directory
+    var resolveModules = [] // below will set default to "c" directory
 
     // options: plugins
     if (options.plugins) {
@@ -151,10 +163,8 @@ function componentsBuild(options) {
         loaderDirectories = options.loaderDirectories.concat(loaderDirectories)
     }
 
-    var isModulesDirectoriesEmpty = false
     // options: modulesDirectories @vfe
     if (options.modulesDirectories && options.modulesDirectories.length) {
-        isModulesDirectoriesEmpty = true
         resolveModules = resolveModules.concat(options.modulesDirectories)
     }
     // options: module.preLoaders
@@ -171,7 +181,6 @@ function componentsBuild(options) {
     }
     // options: resolve.modulesDirectories
     if (resolveOpt && resolveOpt.modulesDirectories) {
-        isModulesDirectoriesEmpty = isModulesDirectoriesEmpty || true
         resolveModules = resolveModules.concat(resolveOpt.modulesDirectories)
     }
     // options: resolveLoader.modulesDirectories
@@ -179,25 +188,25 @@ function componentsBuild(options) {
         loaderDirectories = loaderDirectories.concat(resolveLoaderOpt.modulesDirectories)
     }
 
-    if (isModulesDirectoriesEmpty) {
-        resolveModules.push('node_modules')
+    if (!resolveModules.length) {
+        resolveModules.push('', 'node_modules')
     }
+    resolveModules = componentsModules.concat(resolveModules)
     preLoaders = [{
         test: new RegExp('/($dir)/$w+/$w+/$w+\.js$'
             .replace(/\//g, '[\/\\\\]')
             .replace(/\$w/g, '[^\/\\\\]')
-            .replace('$dir', resolveModules.join('|'))
+            .replace('$dir', componentsModules.join('|'))
         ),
         loader: 'component'
     },{
         test: new RegExp('/($dir)/$w+/$w+\.js$'
             .replace(/\//g, '[\/\\\\]')
             .replace(/\$w/g, '[^\.\/\\\\]')
-            .replace('$dir', resolveModules.join('|'))
+            .replace('$dir', componentsModules.join('|'))
         ),
         loader: 'component'
     }].concat(preLoaders)
-
     return webpackStream(_.extend({}, options, {
         entry: entry,
         module: _.extend({}, moduleOpt, {
@@ -269,14 +278,14 @@ var builder = function(options) {
     )
     return merge2.apply(null, streams)
         .pipe(gulpif(isConcatLibs, concat(options.name + '.js', {newLine: ';'})))
-        .pipe(gulpif(options.hash !== false, hash({
+        .pipe(gulpif(options.hash !== false, hashName({
             hashLength: HASH_LENGTH,
-            template: '<%= name %>_<%= hash %><%= ext %>'
+            template: '{name}_{hash}{ext}'
         })))
         .pipe(gulpif(options.minify !== false, 
             multipipe(
                 save('components:js:' + jsId),
-                uglify(),
+                uglify(options.uglify).on('error', gutil.log),
                 rename({ suffix: '.min' }),
                 save.restore('components:css.min:' + cssminId),
                 save.restore('components:js:' + jsId)
@@ -298,7 +307,7 @@ builder.bundle = function (src, options) {
     var concats = options.concats
     var hashOpt = {
         hashLength: HASH_LENGTH,
-        template: '<%= name %>_<%= hash %><%= ext %>'
+        template: '{name}_{hash}{ext}'
     }
     var headerOpt = options.header
     var hasConcats = _.isArray(concats) && !!concats.length
@@ -307,9 +316,9 @@ builder.bundle = function (src, options) {
     if (usingMinify) {
         stream = stream
             .pipe(concat(bundleFileName))
-            .pipe(gulpif(usingHash, hash(hashOpt)))
+            .pipe(gulpif(usingHash, hashName(hashOpt)))
             .pipe(gulpif(!hasConcats, save('bundle:js:' + bid)))
-            .pipe(uglify())
+            .pipe(uglify(options.uglify).on('error', gutil.log))
 
         /**
          * concats do not output source files
@@ -317,7 +326,7 @@ builder.bundle = function (src, options) {
         if (hasConcats) {
             stream = merge2(stream, gulp.src(concats))
                 .pipe(concat(bundleFileName))
-                .pipe(gulpif(usingHash, hash(hashOpt)))
+                .pipe(gulpif(usingHash, hashName(hashOpt)))
         }
         stream = stream
             .pipe(rename({ suffix: '.min' }))
@@ -327,7 +336,7 @@ builder.bundle = function (src, options) {
             stream = merge2(stream, gulp.src(concats))
         }
         stream = stream.pipe(concat(bundleFileName))
-            .pipe(gulpif(usingHash, hash(hashOpt)))
+            .pipe(gulpif(usingHash, hashName(hashOpt)))
     }
 
     return stream.pipe(addHeader(headerOpt))
@@ -339,7 +348,7 @@ builder.uglify = uglify
 builder.cssmin = cssmin
 builder.rename = rename
 builder.merge = merge2
-builder.hash = hash
+builder.hash = builder.hashName = hashName
 builder.if = gulpif
 builder.filter = gulpFilter
 builder.multipipe = multipipe

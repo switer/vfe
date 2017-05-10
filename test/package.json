@@ -10,7 +10,9 @@
   "dependencies": {
     "colors": "^1.1.2",
     "gulp-debug": "^2.1.2",
+    "inherits": "^2.0.3",
     "map-stream": "0.0.6",
-    "real": "^1.2.7"
+    "real": "^1.2.7",
+    "zect": "^1.2.15"
   }
 }

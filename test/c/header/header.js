@@ -2,6 +2,7 @@
 
 var tpl = require('./header.tpl')
 var conf = require('./header.json')
+require('../../consts/consts.js')
 require('./header.less')
 
 module.exports = Reve.component('header', {
