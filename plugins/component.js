@@ -25,6 +25,7 @@ var getResolveComponent = function(modules, exts) {
             query = queryString.stringify(query)
             request.query = query ? '?' + queryString.stringify(query) : null
         }
+
         var capturedDir = requestPath.match(patterns.ENCLOSING_DIR_PATH)
         // Ignore npm modules
         var ignored = !captured || (capturedDir && /node_modules$/.test(capturedDir[1])) || queryIgnored;

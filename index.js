@@ -207,7 +207,6 @@ function componentsBuild(options) {
         ),
         loader: 'component'
     }].concat(preLoaders)
-
     return webpackStream(_.extend({}, options, {
         entry: entry,
         module: _.extend({}, moduleOpt, {

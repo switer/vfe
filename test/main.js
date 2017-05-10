@@ -13,6 +13,8 @@ require('./global-module')				// relative path without extension
 require('~/global-module.js')			// absolute path
 require('~/global-module')				// absolute path without extension
 require('/custom_modules/category/header')
+require('category/header')
+require('category/lib/video-info')
 require('custom_cat/header/header.js')
 require('!real')
 require('zect')
