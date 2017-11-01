@@ -25,7 +25,11 @@ var shortid = require('shortid')
 var HASH_LENGTH = 6
 
 var root = process.cwd()
-function noop () {}
+var DEFAULT_UGLFIFY = {
+    compress: { screw_ie8: false },
+    mangle: { screw_ie8: false },
+    output: { screw_ie8: false }
+}
 function componentsBuild(options) {
     var entry = options.entry || './index.js'
     var componentsOptions = options.components || {}
@@ -88,7 +92,7 @@ function componentsBuild(options) {
             new ExtractTextPlugin(cssOutputName, _.extend({}, cssOutputOpts))
         ]
 
-    if (options.rule == false) {
+    if (options.rule === false) {
         // remove rule transform plugins
         plugins = plugins.slice(plugins.length - 1, plugins.length)
     }
@@ -240,7 +244,6 @@ var builder = function(options) {
     options = options || {}
     var jsOnlyFilter = gulpFilter(['*.js']) // remove all files except js
     var jsFilter = gulpFilter(['**/*', '!*.js']) // remove js from matched files
-    var cssOnlyFilter = gulpFilter(['*.css']) // remove js from matched files
 
     // var entry = options.entry || './index.js'
     var libs = options.libs
@@ -249,7 +252,6 @@ var builder = function(options) {
     var cssimgId = shortid.generate()
     var cssminId = shortid.generate()
     var jsId = shortid.generate()
-    var headerOpt = options.header
 
     /**
      * concat component js bundle with lib js
@@ -285,7 +287,7 @@ var builder = function(options) {
         .pipe(gulpif(options.minify !== false, 
             multipipe(
                 save('components:js:' + jsId),
-                uglify(options.uglify).on('error', gutil.log),
+                uglify(_.extend({}, DEFAULT_UGLFIFY, options.uglify)).on('error', gutil.log),
                 rename({ suffix: '.min' }),
                 save.restore('components:css.min:' + cssminId),
                 save.restore('components:js:' + jsId)
@@ -318,7 +320,7 @@ builder.bundle = function (src, options) {
             .pipe(concat(bundleFileName))
             .pipe(gulpif(usingHash, hashName(hashOpt)))
             .pipe(gulpif(!hasConcats, save('bundle:js:' + bid)))
-            .pipe(uglify(options.uglify).on('error', gutil.log))
+            .pipe(uglify(_.extend({}, DEFAULT_UGLFIFY, options.uglify)).on('error', gutil.log))
 
         /**
          * concats do not output source files
@@ -372,7 +374,7 @@ builder.util = {
             }, 50) // call after gulp ending handler done
         }
         return function () {
-            if (pending) return hasNext = true
+            if (pending) return (hasNext = true)
 
             pending = true
             fn(next)
