@@ -37,7 +37,7 @@ function componentsBuild(options) {
     var componentsExtensions = componentsOptions.extensions || ["js", "jsx", "coffee"]
     var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
     var usingHash = options.hash !== false
-    var cssOutputName = usingHash ? options.name + '_[contenthash:' + HASH_LENGTH +  '].css' : options.name + '.css'
+    var cssOutputName = (options.name || '[name]') + (usingHash ? '_[contenthash:' + HASH_LENGTH +  '].css' : '.css')
     var cssOutputOpts = options.vfePlugins ? options.vfePlugins.extractText : {}
 
     function isIgnored(f) {
