@@ -17,7 +17,7 @@ var save = require('./tasks/save')
 var webpack = require('webpack')
 var hashName = require('gulp-hash-name')
 var webpackStream = require('webpack-stream')
-var ExtractTextPlugin = require("extract-text-webpack-plugin")
+var ExtractTextPlugin = require("mini-css-extract-plugin")
 var ComponentPlugin = require('./plugins/component')
 var patterns = require('./lib/patterns')
 var _ = require('underscore')
@@ -34,15 +34,12 @@ function componentsBuild(options) {
     var entry = options.entry || './index.js'
     var componentsOptions = options.components || {}
     var componentsModules = componentsOptions.directories || ['c']
-    var componentsExtensions = componentsOptions.extensions || ["js", "jsx", "coffee"]
-    var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".coffee"]
+    var componentsExtensions = componentsOptions.extensions || ["js", "vue", "jsx", "ts"]
+    var extensions = ["", ".webpack.js", ".web.js", ".js", ".jsx", ".ts"]
     var usingHash = options.hash !== false
     var cssOutputName = (options.name || '[name]') + (usingHash ? '_[contenthash:' + HASH_LENGTH +  '].css' : '.css')
     var cssOutputOpts = options.vfePlugins ? options.vfePlugins.extractText : {}
 
-    function isIgnored(f) {
-        if (patterns.IGNORED.test(f.request)) return true
-    }
     var plugins = [
             new webpack.ResolverPlugin([
               new ComponentPlugin(componentsModules.map(function(n){
@@ -52,44 +49,10 @@ function componentsBuild(options) {
                     }
               }), componentsExtensions)
             ]),
-            new webpack.NormalModuleReplacementPlugin(/^\#(?:[^#]+)/, function(f) {
-                var unmatches = f.request.match(/\#/g)
-                if (!unmatches || unmatches.length <= 1) {
-                    // ignore matched
-                    f.request = f.request.replace(/^\#/, '$ignored::')
-                }
-                return f
-            }),
-            new webpack.NormalModuleReplacementPlugin(patterns.HOME_PATH, function(f) {
-                if (!isIgnored(f)) {
-                    f.context = root
-                    f.request = './' + f.request.replace(patterns.HOME_PATH, '')
-                }
-                return f
-            }),
-            // /modules_directory/*
-            new webpack.NormalModuleReplacementPlugin(patterns.ABSOLUTE_PATH, function(f) {
-                if (!isIgnored(f)) {
-                    var mdir = f.request.match(patterns.ABSOLUTE_PATH)[1]
-                    var cdir
-                    if (componentsModules.some(function (dir) {
-                        cdir = dir
-                        dir = path.basename(dir)
-                        return mdir === dir
-                    })) {
-
-                        f.request = path.join(
-                            path.isAbsolute(cdir) 
-                                ? cdir 
-                                : path.join(process.cwd(), cdir), 
-                            f.request.replace(patterns.ABSOLUTE_PATH, '')
-                        )
-                    }
-                }
-                return f
-            }),
             // extract css bundle
-            new ExtractTextPlugin(cssOutputName, _.extend({}, cssOutputOpts))
+            new ExtractTextPlugin(_.extend({
+                filename: cssOutputName
+            }, cssOutputOpts))
         ]
 
     if (options.rule === false) {
@@ -113,31 +76,46 @@ function componentsBuild(options) {
     if (enableTplLoader) {
         loaders.push(_.extend({
             test: /.*?\.tpl$/,
-            loader: 'html-loader'
+            use: 'html-loader'
         }, patchOpts(vfeLoaders.tpl)))
     }
     if (enableCssLoader) {
         loaders.push(_.extend({
             test: /\.css$/,
-            loader: ExtractTextPlugin.extract("style-loader", "css-loader", _.extend({}, vfeLoadersCssOpts.options))
+            use: [{
+                loader: ExtractTextPlugin.loader,
+                options: _.extend({}, vfeLoadersCssOpts.options)
+              },
+              "style-loader",
+              "css-loader",
+            ]
+            // use: ExtractTextPlugin.extract("style-loader", "css-loader", _.extend({}, vfeLoadersCssOpts.options))
         }, vfeLoadersCssOpts))
     }
     if (enableLessLoader) {
         loaders.push(_.extend({
             test: /\.less$/,
-            loader: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader", _.extend({}, vfeLoadersLessOpts.options))
+            use: [{
+                loader: ExtractTextPlugin.loader,
+                options: _.extend({}, vfeLoadersCssOpts.options)
+              },
+              "style-loader",
+              "css-loader",
+              "less-loader"
+            ]
+            // use: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader", _.extend({}, vfeLoadersLessOpts.options))
         }, vfeLoadersLessOpts))
     }
     if (enableImgLoader) {
         loaders.push(_.extend({
             test: /\.(png|jpg|gif|jpeg|webp)$/,
-            loader: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
+            use: "file-loader?name=[path][name]" + (usingHash ? "_[hash:" + HASH_LENGTH + "]" : "") + ".[ext]"
         }, patchOpts(vfeLoaders.image)))
     }
     if (enableFontLoader) {
         loaders.push(_.extend({
             test: /\.(woff|woff2|eot|ttf|svg|otf)$/,
-            loader: 'url-loader?limit=100000'
+            use: 'url-loader?limit=100000'
         }, vfeLoaders.font))
     }
 
@@ -202,14 +180,14 @@ function componentsBuild(options) {
             .replace(/\$w/g, '[^\/\\\\]')
             .replace('$dir', componentsModules.join('|'))
         ),
-        loader: 'component'
+        use: 'component'
     },{
         test: new RegExp('/($dir)/$w+/$w+\.js$'
             .replace(/\//g, '[\/\\\\]')
             .replace(/\$w/g, '[^\.\/\\\\]')
             .replace('$dir', componentsModules.join('|'))
         ),
-        loader: 'component'
+        use: 'component'
     }].concat(preLoaders)
     return webpackStream(_.extend({}, options, {
         entry: entry,
@@ -217,7 +195,7 @@ function componentsBuild(options) {
             preLoaders: preLoaders,
             loaders: loaders
         }),
-        resolveLoader: _.extend({}, options.resolveLoader, {
+        resolveuse: _.extend({}, options.resolveLoader, {
             modulesDirectories: loaderDirectories
         }),
         plugins: plugins,
