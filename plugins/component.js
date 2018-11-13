@@ -52,16 +52,12 @@ module.exports = class ComponentNamePlugin {
                   return exist
                 })
               })
-              data.context = context
-              data.request = request
               if (request) {
-                callback(null, data)
-              } else {
-
+                data.context = context
+                data.request = request
               }
-            } else {
-              callback()
             }
+            callback(null, data)
           })
         }
       );
