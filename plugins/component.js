@@ -32,7 +32,7 @@ module.exports = class ComponentNamePlugin {
             let isCRule = !parts.some(p => {
               return !/^[\w\-]+$/.test(p)
             })
-            if (isCRule) {
+            if (isCRule && parts.length >= 1 && parts.length <= 3) {
               let modDirs = this._modules
               let extensions = this._extensions
               let context, request

@@ -27,7 +27,7 @@ var gulp = require('gulp')
 var vfe = require('vfe')
 
 gulp.task('default', function () {
-	
+
 	return vfe({
 			entry: './index.js',
 			libs: './lib/*.js'
@@ -52,8 +52,8 @@ Project folders specification:
  |       |
  |       |___/images
  |           |____icon.png
- |   
- |   
+ |
+ |
  |____gulpfile.js
  |
  |____index.js
@@ -63,17 +63,17 @@ Project folders specification:
 ```
 
 - **c/**
-	
-	Component modules directory, default is "/c". Using `require("$componentName")` to load module, 
+
+	Component modules directory, default is "/c". Using `require("$componentName")` to load module,
 	such as load header module: `require("header")` will auto load header.css and header.js.
 	> **Note:** It can be replaced of custom_directory using modulesDirectories option. [See](https://github.com/switer/vfe#custom-modules-directory)
 
 - **lib/**
-	
+
 	Non-modularized js will concat with components' bundle file.
 
 - **index.js**
-	
+
 	Components entry js.
 
 
@@ -83,21 +83,6 @@ Install [vfe command line tool](https://github.com/tvfe/vfe-cli):
 ```bash
 npm install vfe-cli -g
 ```
-
-Init project using [vfe-template](https://github.com/switer/vfe-init-template)
-```bash
-vfe init [template]
-```
-> **Note**: Using proxy option, `vfe init -p $proxy`. Such as `vfe init -p tx`. See [$tx](https://github.com/switer/vfe/blob/master/bin/vfe#L17) 
-
-vfe init support 3 types template:
-
-- **[default](https://github.com/tvfe/vfe-init-template)** An simple boilerplate that using vfe as component builder only.
-- **[client](https://github.com/tvfe/vfe-init-client-side-render)**  The boilerplate is appropriate for client-side render project. It use [Zect](http://github.com/switer/zect) as components framework.
-- **[node](https://github.com/tvfe/vfe-init-server-side-render)**    The boilerplate is appropriate for server-side render project. It use [Real](http://github.com/switer/real) and [comps](http://github.com/switer/comps).
-- **[spa](https://github.com/tvfe/vfe-init-spa)**     The boilerplate is appropriate for that project which using client-side render and hash router without reloading. Components framework use [Zect](http://github.com/switer/zect) and router use [Routed](https://github.com/routedjs/routed).
-- **[autonode](https://github.com/tvfe/vfe-init-autonode)** 	Autonode template.
-
 Run default build task
 ```bash
 vfe
@@ -120,39 +105,35 @@ vfe r
 > Note: Release command support run with another task name, such as `vfe release sometask`, only if task name is `release-sometask`.
 
 
-## Require rules
+## 模块引用规则
 
-- **require(`"/$components_modules/name/$resource.js"`)** 
+- **require(`"$name"`)**
 
-	Component resources absolute path.
+	`"/$components_modules/$name/$name.js"` 的简写，一级目录同名规则
 
-- **require(`"$name"`)** 
-	
-	Short name of `"/$components_modules/name/$name.js"`.
+- **require(`"$dir/$name"`)**
 
-- **require(`"$dir/$name"`)** 
-	
-	Short name of `"/$components_modules/dir/$name/$name.js"`.
+	`"/$components_modules/$dir/$name/$name.js"` 的简写，二级目录同名规则
 
-- **require(`"$modules_dir/$name"`)** 
-	
-	Short name of `"/$components_modules/$name/$name.js"`.
+- **require(`"$dir/$sub/$name"`)**
+
+  `"/$components_modules/$dir/$sub/$name/$name.js"` 的简写，三级目录同名规则
+
+- **require(`"/$components_modules/$name"`)**
+
+	`"/$components_modules/$name/$name.js"`  的简写，一级目录同名规则&绝对路径
+
+- **require(`"/$components_modules/$dir/$name"`)**
+
+  `"/$components_modules/$dir/$name/$name.js"`  的简写，二级目录同名规则&绝对路径
+
+- **require(`"/$components_modules/$dir/$sub/$name"`)**
+
+  `"/$components_modules/$dir/$sub/$name/$name.js"`  的简写，三级目录同名规则&绝对路径
 
 - **require(`"./$name.tpl"`)**
 
-	Load html template file as a string module.
-
-- **require(`"#$name"`)**
-	
-	Request "$name" module directly without any tansform. Such as:
-
-		* require('#$dir/name') // equal require('$dir/name') directly
-
-- **require(`"~/$path"`)**
-	
-	Load module by "$path" base in **process.cwd()** and without any tansform. Such:
-
-		* require('~/$dir/name') // equal to require('$cwd/$dir/name')
+	加载HTML模板作为渲染方法
 
 
 ## Custom modules directory
@@ -168,7 +149,7 @@ If you don't want use "/c" as component modules directory, overwrite it:
 vfe({
 	modulesDirectories: ['components'] // use "/components" as modules directory
 })
-```	
+```
 
 ## API
 
@@ -181,14 +162,11 @@ vfe({
 	* `hash` enable/disable using output, default true
 	* `minify` enable/disable compress css/js, default true
 	* `rule`  enable/disable require rule transform, default true
-	* `vfeLoaders` configuration for build in plugins, include:
-	* `components.directories` those modules in directories will be loaded as components(using component require rule if matched), and directories will be append to **resolver.modulesDirectories**, default `[c]`
-	* `components.extensions` Load components by matching extension, default `[js,jsx,coffee]`
 	* `vfePlugins`
-		
+
 		- **extractText** Custom options for [extract-text-webpack-plugin](https://github.com/webpack/extract-text-webpack-plugin).
 
-	* `vfeLoaders` configuration for build in loaders, include: 
+	* `vfeLoaders` configuration for build in loaders, include:
 
 		- **tpl** default enable, set false to disable
 		- **css** default enable, set false to disable
@@ -278,18 +256,6 @@ vfe(options)
 
 * **WebPack**
 Using as **vfe(`options`)** , `options` will be passed through to webpack function.
-
-## Change logs
-
-### Version 2.1.2 - 2016/10/9
-- Using "#$name" instead of "!$name" for resolving module directly, to void rule conflict with webpack.
-- Add `vfeLoaders.font` option.
-
-### Version 2.0.0 - 2016/4/13
-- Remove options: "node_modules", "onRequest".
-- Added options: "componentsDirectories" those directories will auto append to resolve.modulesDirectories.
-- Using componentResolver instead normalModuleReplacement for component rules
-
 
 ## License
 

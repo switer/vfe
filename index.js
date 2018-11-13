@@ -133,6 +133,7 @@ function componentsBuild(options) {
   resolveModules = componentsModules.concat(resolveModules)
 
   delete options.libs
+  delete options.rule
   delete options.name
   delete options.minify
   delete options.header
@@ -140,6 +141,7 @@ function componentsBuild(options) {
   delete options.hash
   delete options.components
   delete options.vfeLoaders
+  delete options.vfePlugins
 
   return webpackStream(_.extend({
     mode: 'none'
