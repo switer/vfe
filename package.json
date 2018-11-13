@@ -1,6 +1,6 @@
 {
   "name": "vfe",
-  "version": "2.1.13",
+  "version": "4.0.0",
   "description": "vfe build cli, base on webpack & gulp.",
   "main": "index.js",
   "scripts": {
