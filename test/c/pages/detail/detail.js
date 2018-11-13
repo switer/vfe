@@ -1,3 +1,5 @@
 'use strict';
 
-module.exports = 'detail page'
+require('header')
+// require('/c/home')
+module.exports = 'I am detail page'

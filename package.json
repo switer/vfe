@@ -38,6 +38,8 @@
     "gulp-uglify": "^2.0.1",
     "gulp-util": "^3.0.8",
     "html-loader": "^0.4.4",
+    "less": "^3.8.1",
+    "less-loader": "^4.1.0",
     "merge2": "^0.3.7",
     "mini-css-extract-plugin": "^0.4.4",
     "multipipe": "^0.1.2",
