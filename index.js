@@ -55,8 +55,9 @@ function componentsBuild(options) {
 
   if (options.rule === false) {
     // remove rule transform plugins
-    plugins = plugins.slice(plugins.length - 1, plugins.length)
+    plugins.shift()
   }
+  plugins = (options.plugins || []).concat(plugins)
 
   var vfeLoaders = options.vfeLoaders || {}
   var enableLessLoader = !!vfeLoaders.less // default disable
